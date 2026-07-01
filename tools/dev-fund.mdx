@@ -1,7 +1,7 @@
 ---
 title: "Dev Fund Tools — Canton Grant Proposal Intelligence"
 sidebarTitle: "Dev Fund"
-description: "5 tools for the Canton Dev Fund: browse proposals, check funding landscape, track milestones, detect builder overlap, and score a draft proposal for success."
+description: "5 tools for the Canton Dev Fund: browse proposals, check funding landscape, track milestones, detect builder overlap, and score a draft for success."
 ---
 
 The Canton Dev Fund is the community grant programme that funds builders across the ecosystem. CCPEDIA gives you 5 tools to navigate it intelligently: browse open and closed proposals, understand the funding landscape by category, track milestone issues attached to a specific grant, detect overlap between your idea and existing work, and score a draft proposal against the attributes that correlate with approval. These tools are Canton-ecosystem only and are completely distinct from Canton Improvement Proposals (CIPs), which are governance specifications — not funding requests.
@@ -10,7 +10,7 @@ The Canton Dev Fund is the community grant programme that funds builders across 
 
 ### `detect_builder_overlap`
 
-Given a project or proposal idea, find existing Canton ecosystem projects and dev-fund proposals that look similar — across both the `canton-dev-fund` proposals corpus and `ecosystem_projects`. Use this before submitting a new proposal to cut manual cross-reference research and avoid duplicating work already funded or underway.
+Given a project or proposal idea, find existing Canton ecosystem projects and dev-fund proposals that look similar — across both the Dev Fund proposals corpus and the ecosystem projects catalogue. Use this before submitting a new proposal to cut manual cross-reference research and avoid duplicating work already funded or underway.
 
 <Expandable title="Arguments">
   <ParamField path="idea" type="string" required>
@@ -104,7 +104,7 @@ curl -X POST https://ccpedia.xyz/mcp \
 
 ---
 
-### `get_proposals`
+### `list_proposals`
 
 List Canton Network Dev Fund grant proposals — community funding requests tracked on GitHub — filterable by state (`open`, `closed`, or `all`). Use this for "what grants and funding requests exist?" questions. Returns number, title, state, author, and board status. Note that these are funding requests, not governance specifications — for CIPs use `list_cips` and `get_cip`.
 
@@ -124,7 +124,7 @@ List Canton Network Dev Fund grant proposals — community funding requests trac
   "id": 1,
   "method": "tools/call",
   "params": {
-    "name": "get_proposals",
+    "name": "list_proposals",
     "arguments": { "state": "open" }
   }
 }
@@ -133,7 +133,7 @@ List Canton Network Dev Fund grant proposals — community funding requests trac
 curl -X POST https://ccpedia.xyz/mcp \
   -H 'content-type: application/json' \
   -H 'accept: application/json, text/event-stream' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_proposals","arguments":{"state":"open"}}}'
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_proposals","arguments":{"state":"open"}}}'
 ```
 </CodeGroup>
 

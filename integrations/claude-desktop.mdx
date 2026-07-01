@@ -1,7 +1,7 @@
 ---
-title: "Add CCPEDIA to Claude Desktop"
+title: "Add CCPEDIA to Claude Desktop — macOS and Windows Guide"
 sidebarTitle: "Claude Desktop"
-description: "Configure CCPEDIA as an MCP server in Claude Desktop on macOS or Windows using the mcp-remote stdio bridge."
+description: "Configure CCPEDIA as an MCP server in Claude Desktop on macOS or Windows. Requires the mcp-remote stdio bridge and Node 18 or newer to run."
 ---
 
 Claude Desktop reads MCP server definitions from a single JSON config file. Adding CCPEDIA takes about two minutes: you edit the config, restart the app, and Canton Network knowledge becomes available in every conversation. Because Claude Desktop expects a stdio process, you use the `mcp-remote` bridge to forward calls to CCPEDIA's streamable HTTP endpoint — no extra installation needed beyond Node 18.

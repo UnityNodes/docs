@@ -1,14 +1,14 @@
 ---
 title: "Onboarding and Drift Tools — Get Started on Canton Fast"
 sidebarTitle: "Onboarding"
-description: "7 tools to onboard developers, generate learning paths, surface Canton API references, answer FAQs, detect KB drift, and track breaking-change radar alerts."
+description: "7 tools to onboard Canton developers, generate learning paths, surface API refs, answer FAQs, detect KB drift, and track breaking-change radar alerts."
 ---
 
 Getting started on Canton is faster when you have the right guide for your background. CCPEDIA's 7 onboarding and drift tools generate personalised quickstart paths for developers coming from any ecosystem, build topic-driven learning sequences, answer common developer questions, provide structured Canton API references, and expose a unique transparency layer that shows you exactly where curated knowledge bases have drifted from the current live state of the network.
 
 ---
 
-### `detect_drift`
+### `detect_kb_outdated_guidance`
 
 Find contradictions between docs, forum posts, and GitHub on a topic. Returns counts of how each surface discusses it, plus the most recent doc-page statement and forum statement, so you can spot mismatches before they confuse a developer. This is distinct from `get_kb_drift`, which compares the Foundation KB to live releases specifically.
 
@@ -25,7 +25,7 @@ Find contradictions between docs, forum posts, and GitHub on a topic. Returns co
   "id": 1,
   "method": "tools/call",
   "params": {
-    "name": "detect_drift",
+    "name": "detect_kb_outdated_guidance",
     "arguments": { "topic": "Daml triggers" }
   }
 }
@@ -34,7 +34,7 @@ Find contradictions between docs, forum posts, and GitHub on a topic. Returns co
 curl -X POST https://ccpedia.xyz/mcp \
   -H 'content-type: application/json' \
   -H 'accept: application/json, text/event-stream' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"detect_drift","arguments":{"topic":"Daml triggers"}}}'
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"detect_kb_outdated_guidance","arguments":{"topic":"Daml triggers"}}}'
 ```
 </CodeGroup>
 
@@ -106,7 +106,7 @@ curl -X POST https://ccpedia.xyz/mcp \
 
 ### `get_kb_drift`
 
-Report where the Foundation Build-on-Canton KB snapshot (synced daily from `github.com/canton-network-devs/Build-on-Canton-MCP`) diverges from CCPEDIA's live signals — `github_releases` and `mailing_messages`. Returns each drifted `(category, key)` with the KB value, the live value derived right now, the drift age in days, and a severity level (`info`, `warn`, or `stale`).
+Report where the Foundation Build-on-Canton KB snapshot (synced daily from `github.com/canton-network-devs/Build-on-Canton-MCP`) diverges from CCPEDIA's live signals — GitHub releases and mailing-list messages. Returns each drifted `(category, key)` with the KB value, the live value derived right now, the drift age in days, and a severity level (`info`, `warn`, or `stale`).
 
 Use this when a user or agent quotes a Canton SDK, Splice, DPM, or Daml version from the Foundation KB and you need to verify whether it is still current. This cross-source quality audit is unique to CCPEDIA.
 
@@ -202,7 +202,7 @@ curl -X POST https://ccpedia.xyz/mcp \
 
 ---
 
-### `learning_path`
+### `get_learning_path`
 
 Construct a structured Canton onboarding sequence for a stated goal: whitepaper → relevant docs → CIPs to know → forum starter threads → talks. Use this when a developer has a specific goal in mind rather than a background to start from. For a background-driven path use `get_started_guide` instead.
 
@@ -219,7 +219,7 @@ Construct a structured Canton onboarding sequence for a stated goal: whitepaper 
   "id": 1,
   "method": "tools/call",
   "params": {
-    "name": "learning_path",
+    "name": "get_learning_path",
     "arguments": { "goal": "operate a validator" }
   }
 }
@@ -228,7 +228,7 @@ Construct a structured Canton onboarding sequence for a stated goal: whitepaper 
 curl -X POST https://ccpedia.xyz/mcp \
   -H 'content-type: application/json' \
   -H 'accept: application/json, text/event-stream' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"learning_path","arguments":{"goal":"operate a validator"}}}'
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_learning_path","arguments":{"goal":"operate a validator"}}}'
 ```
 </CodeGroup>
 

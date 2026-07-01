@@ -1,72 +1,53 @@
 ---
-title: "Canton Token Standard: Implementing CIP-0056 Token Transfers"
+title: "CIP-0056 Token Standard — Canton Design Patterns"
+description: "One Canton design pattern for implementing CIP-0056 token transfers using the Transfer, TransferIntent, and TransferReceipt standard flows."
 sidebarTitle: "Token Standard"
-description: "One pattern for implementing Canton token transfers using CIP-0056 standard flows, extending rather than replacing Transfer, TransferIntent, and TransferReceipt."
 ---
 
-The Canton Token Standard (CIP-0056) defines the canonical shapes for fungible and non-fungible token operations on the Canton Network. Building tokens that follow the standard means your asset is immediately compatible with CIP-0103 wallets, DEX protocols, and any other Canton application that understands the standard interfaces. Building outside the standard means you duplicate logic that CIP-0056 already solves and create an asset that no standard wallet can move without custom integration.
+This pattern shows how to implement token transfers using the Canton Token Standard (CIP-0056) instead of writing custom transfer logic from scratch.
 
-<Tip>
-  Use the CCPEDIA `get_cip_implementation_status` MCP tool to check the current implementation status of CIP-0056 and any CIPs that build on it. The standard is actively developed — confirm you are targeting the correct revision before writing contract code.
-</Tip>
+## Implement a CIP-0056 token transfer
 
-<AccordionGroup>
-  <Accordion title="Implement a CIP-0056 token transfer">
-    **Problem**
+<Note>**Problem.** Custom transfer choices duplicate logic that the standard already covers, leading to incompatible token implementations.</Note>
 
-    Custom token implementations often duplicate transfer logic that the Canton Token Standard already covers. Each custom transfer choice adds code you must audit, maintain, and explain to integrators. More importantly, non-standard tokens cannot be moved by standard wallets or traded on standard DEX protocols without bespoke bridging code.
+**Solution.** Use the Canton Token Standard (CIP-0056) reference flows: `Transfer`, `TransferIntent`, and `TransferReceipt`. Build new tokens by extending the standard, not replacing it. The three-step pattern keeps sender intent, in-flight state, and settlement confirmation cleanly separated.
 
-    **Solution**
+```daml
+-- 1. Sender creates a TransferIntent
+template TransferIntent
+  with
+    sender   : Party
+    receiver : Party
+    amount   : Decimal
+    tokenId  : ContractId Token
+  where
+    signatory sender
 
-    Use the Canton Token Standard (CIP-0056) reference flows and extend them rather than replacing them. The three core constructs are:
+    -- 2. Receiver accepts, triggering the Transfer
+    choice Accept : ContractId TransferReceipt
+      controller receiver
+      do
+        archive self
+        -- move token custody to receiver ...
+        create TransferReceipt with sender; receiver; amount
 
-    | Construct | Purpose |
-    |---|---|
-    | `Transfer` | The completed movement of token ownership from sender to receiver |
-    | `TransferIntent` | A declared intention to transfer, enabling multi-step atomic workflows |
-    | `TransferReceipt` | The acknowledgement record produced when a transfer completes |
+-- 3. TransferReceipt provides an immutable settlement record
+template TransferReceipt
+  with
+    sender   : Party
+    receiver : Party
+    amount   : Decimal
+  where
+    signatory sender, receiver
+```
 
-    Build new token types by extending the standard interfaces, not by writing custom transfer choices from scratch:
+Key points:
+- **TransferIntent** is created by the sender and signals intent without moving custody.
+- **Transfer** is the in-flight operation that the receiver triggers.
+- **TransferReceipt** is the immutable on-ledger settlement record signed by both parties.
+- Extend these templates with your token-specific fields rather than creating parallel choice hierarchies.
 
-    ```daml
-    -- Extend the standard, don't replace it
-    template MyToken
-      with
-        issuer : Party
-        owner  : Party
-        amount : Decimal
-        -- Standard CIP-0056 fields go here
-      where
-        signatory issuer, owner
-
-        -- Implement the standard Transfer interface
-        interface instance CIP0056.ITransferable MyToken where
-          view = CIP0056.TransferableView with ..
-          transfer = do
-            -- Your custom pre/post transfer logic here
-            -- Then delegate to the standard flow
-            ...
-    ```
-
-    The OpenZeppelin Canton Token Template provides a complete reference implementation. Start from that template when creating a new token type rather than writing from scratch.
-
-    **What you get from following the standard**
-
-    - **Wallet compatibility**: Any CIP-0103 compliant wallet can display and move your token without custom integration
-    - **DEX compatibility**: Standard transfer flows work with Canton DEX protocols out of the box
-    - **Audit clarity**: Auditors familiar with CIP-0056 can review your token logic without learning a custom protocol
-    - **Upgrade path**: When CIP-0056 is updated, you extend the delta rather than rearchitecting your entire token
-
-    **When to extend vs. when to wrap**
-
-    Extend the standard when your token has additional fields or constraints (e.g., expiry, lock conditions, compliance metadata). Wrap the standard when you need to aggregate multiple standard tokens into a higher-level construct. Never bypass the standard transfer flow entirely — if you feel you need to, open a CIP discussion first.
-
-    **References**
-    - [CIP-0056 discussion and specification](https://lists.sync.global/g/cip-discuss)
-    - [OpenZeppelin Canton Token Template](https://github.com/OpenZeppelin/canton-token-template)
-  </Accordion>
-</AccordionGroup>
-
-<Note>
-  CIP-0056 is part of an active ecosystem of Canton Improvement Proposals. Use `detect_cip_dependency_chain({ cip_id: "CIP-0056" })` via CCPEDIA to see all proposals that depend on the token standard, and `get_cip_citations({ cip_number: "0056" })` to track the full conversation about the standard across the forum, mailing lists, and GitHub.
-</Note>
+**References:**
+- [CIP-0056 on the mailing list](https://lists.sync.global/g/cip-discuss)
+- [OpenZeppelin Canton Token Template](https://github.com/OpenZeppelin/canton-token-template)
+- [CIPs tool](/tools/cips)

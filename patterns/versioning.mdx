@@ -1,93 +1,27 @@
 ---
-title: "Canton Versioning: SDK Upgrades and Version Confirmation"
+title: "Canton Versioning Patterns — SDK Upgrade Patterns"
+description: "Two Canton design patterns for pre-flighting SDK upgrades and confirming you are running current Canton and Splice versions before trusting tutorials."
 sidebarTitle: "Versioning"
-description: "Two versioning patterns to pre-flight SDK upgrades for breaking changes and confirm your Canton and Splice versions against live release data before trusting static docs."
 ---
 
-Canton and Splice ship on a rapid cadence — typically every one to two weeks. That pace delivers new capabilities quickly but also means that static documentation, AI assistant training data, and curated knowledge bases can all fall behind the live release feed in a matter of days. These two patterns give you a systematic way to stay current: check for breaking changes before you upgrade, and verify the actual current version before you trust anything you read.
+These patterns help you keep pace with the rapid Canton and Splice release cadence and catch breaking changes before they hit your CI pipeline.
 
-<Tip>
-  Use the CCPEDIA `get_breaking_changes` and `get_current_versions` MCP tools as standard steps in your upgrade workflow. They join GitHub release notes with forum activity to surface both announced changes and observed regressions that may not yet be in the official docs.
-</Tip>
+## Pre-flight an SDK upgrade
 
-<AccordionGroup>
-  <Accordion title="Pre-flight an SDK upgrade">
-    **Problem**
+<Note>**Problem.** Splice and Canton ship every one to two weeks. Teams discover breaking changes only after CI breaks.</Note>
 
-    Splice and Canton ship every one to two weeks. Teams routinely discover breaking changes only after CI fails on the new version. By then you are debugging under pressure rather than planning a smooth migration.
+**Solution.** Run `get_breaking_changes(from, to)` against the target tags before bumping. It cross-references GitHub release notes with forum activity in the post-release window, so you see both officially announced and community-observed regressions.
 
-    **Solution**
+**References:**
+- [Code & Errors tool](/tools/code-errors)
 
-    Run `get_breaking_changes(from, to)` against the target version tags before bumping your SDK dependency. The tool joins GitHub release notes with forum activity in the post-release window, so you see both the changes Digital Asset officially announced and the regressions that the community observed in the days after the tag.
+---
 
-    ```bash
-    # Example MCP call — check what changed between two Splice releases
-    get_breaking_changes({ from: "splice/0.3.14", to: "splice/0.3.15" })
-    ```
+## Confirm you're on the current Canton + Splice
 
-    The response groups changes by type: API removals, behaviour changes, migration steps required, and known regressions. Work through the migration steps on a branch before merging the version bump to `main`.
+<Note>**Problem.** Curated knowledge bases and tutorials lag the live release feed by weeks.</Note>
 
-    **Recommended upgrade workflow**
+**Solution.** `get_current_versions` returns the latest release tags, cross-referenced with validator-announce mailing list posts that confirm real-world deployment. Always check this before trusting a static tutorial or knowledge base entry.
 
-    <Steps>
-      <Step title="Query breaking changes">
-        Call `get_breaking_changes(from, to)` for the version pair you are targeting.
-      </Step>
-      <Step title="Create a migration branch">
-        Branch from your current release tag before applying any dependency bumps.
-      </Step>
-      <Step title="Apply migration steps">
-        Work through each item flagged by `get_breaking_changes` in order — API changes first, then behaviour changes.
-      </Step>
-      <Step title="Run your test suite">
-        Validate against the new SDK on the migration branch before merging.
-      </Step>
-      <Step title="Monitor forum activity">
-        Watch the Canton forum for the 14-day window after the tag. Community-observed regressions often surface here first.
-      </Step>
-    </Steps>
-
-    **References**
-    - [CCPEDIA MCP tool: get_breaking_changes](/tools/code-errors)
-  </Accordion>
-
-  <Accordion title="Confirm you're on the current Canton and Splice versions">
-    **Problem**
-
-    Curated knowledge bases, AI training datasets, and community tutorials routinely lag the live release feed by weeks. If you trust a static source for the current version number, you may be building against outdated assumptions about APIs, contract formats, or configuration keys.
-
-    **Solution**
-
-    Call `get_current_versions` through the CCPEDIA MCP server before trusting any static knowledge base. The tool joins GitHub release tags with `validator-announce` mailing-list posts to return the live, authoritative current versions for Canton, Splice, and related components.
-
-    ```bash
-    # Example MCP call
-    get_current_versions()
-    # Returns: { canton: "2.10.3", splice: "0.3.15", damlSdk: "3.1.0", ... }
-    ```
-
-    Cross-check this output against whatever static source you are about to rely on. If the versions differ, trust `get_current_versions` and check the release notes for what changed.
-
-    You can also combine this pattern with `get_kb_drift` to quantify how far behind a particular knowledge base is:
-
-    ```bash
-    # See how stale your local KB snapshot is
-    get_kb_drift()
-    # Returns a list of fields that differ from current live values
-    ```
-
-    **When to use this pattern**
-
-    - Before starting a new project and choosing a base SDK version
-    - When following a tutorial that was written more than two weeks ago
-    - When an AI assistant gives you version-specific advice
-    - Before opening a bug report — confirm the issue still exists on the latest version
-
-    **References**
-    - [CCPEDIA MCP tool: get_current_versions](/tools/releases-sdks)
-  </Accordion>
-</AccordionGroup>
-
-<Note>
-  Version information changes frequently. Bookmark the CCPEDIA MCP tools `get_current_versions` and `get_breaking_changes` as standard steps in your team's sprint ceremonies, not just one-off lookups. Teams that build these checks into their workflow catch upgrade issues days earlier than those that rely on static docs alone.
-</Note>
+**References:**
+- [Releases & SDKs tool](/tools/releases-sdks)

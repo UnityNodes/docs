@@ -1,7 +1,7 @@
 ---
-title: "Add CCPEDIA to the Zed Editor"
+title: "Add CCPEDIA to the Zed Editor via mcp-remote Bridge"
 sidebarTitle: "Zed"
-description: "Connect CCPEDIA to Zed's context server config and bring Canton Network knowledge into the Zed AI assistant panel."
+description: "Connect CCPEDIA to Zed's context_servers config and bring Canton Network knowledge into the Zed AI assistant panel via the mcp-remote bridge."
 ---
 
 Zed supports MCP servers through its `context_servers` settings key. Because Zed expects servers to communicate over stdio, you use the `mcp-remote` bridge to proxy calls to CCPEDIA's streamable HTTP endpoint. The setup involves a single config block and a settings reload — no separate installation step beyond Node 18.

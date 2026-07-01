@@ -1,92 +1,32 @@
 ---
-title: "Canton Debugging: Resolving gRPC Errors and Post-Release Bugs"
+title: "Canton Debugging — gRPC Errors and Release Fixes"
+description: "Two Canton design patterns for resolving gRPC error codes and diagnosing regressions that appear immediately after a new Splice release cut."
 sidebarTitle: "Debugging"
-description: "Two Canton debugging patterns for resolving cryptic gRPC error codes and diagnosing regressions that appear immediately after a new Splice or Canton release cut."
 ---
 
-Debugging Canton applications is distinctive in two ways. First, many errors surface as opaque gRPC status codes with Canton-specific sub-codes that aren't indexed by general search engines. Second, the rapid release cadence means a bug you hit today may have appeared in the last two weeks of forum activity — but only if you know where to look. These two patterns give you a structured approach for both situations.
+These patterns help you move from a cryptic Canton error message to a resolution quickly, using community knowledge surfaced by CCPEDIA's search tools.
 
-<Tip>
-  Paste any Canton gRPC error directly into the CCPEDIA `diagnose_error` MCP tool. It tokenizes the error text, splits underscore-separated status codes, and searches forum threads and GitHub issues for prior resolutions — often surfacing a fix within seconds.
-</Tip>
+## Resolve a gRPC error code
 
-<AccordionGroup>
-  <Accordion title="Resolve a gRPC error code">
-    **Problem**
+<Note>**Problem.** You hit a Canton gRPC error like `UNAVAILABLE` or `TOPOLOGY_TOO_MANY_PENDING_TOPOLOGY_TRANSACTIONS` with no obvious cause.</Note>
 
-    You hit a Canton gRPC error such as `UNAVAILABLE`, `FAILED_PRECONDITION`, or `TOPOLOGY_TOO_MANY_PENDING_TOPOLOGY_TRANSACTIONS` with no obvious cause in the surrounding context. Generic gRPC documentation won't help because these sub-codes are Canton-specific and require Canton-specific resolution steps.
+**Solution.** Paste the full status into `diagnose_error`. The tool extracts distinctive tokens, including underscore-split parts, and searches across forum posts and GitHub issues for prior resolutions and workarounds.
 
-    **Solution**
+```bash
+// MCP call
+diagnose_error({ error_text: "TOPOLOGY_TOO_MANY_PENDING_TOPOLOGY_TRANSACTIONS at submitPartyOnboardingTransaction" })
+```
 
-    Paste the full status string into `diagnose_error`. The tool extracts distinctive tokens — including the parts produced by splitting the status code on underscores — and searches the CCPEDIA forum full-text index (`forum_fts`) and GitHub issue index (`github_items`) for prior occurrences and their resolutions.
+**References:**
+- [Code & Errors tool](/tools/code-errors)
 
-    ```javascript
-    // MCP call
-    diagnose_error({
-      error_text: "TOPOLOGY_TOO_MANY_PENDING_TOPOLOGY_TRANSACTIONS at submitPartyOnboardingTransaction"
-    })
-    ```
+---
 
-    The tool returns:
-    - **Matching forum threads** with the resolution steps community members used
-    - **GitHub issues** with the root cause explanation and any linked PR
-    - **Suggested next steps** ranked by how closely the prior case matches yours
+## Diagnose a Canton bug right after a Splice cut
 
-    Include as much context as you have: the full error message, the operation you were performing, and the Canton version. More context produces better matches.
+<Note>**Problem.** New Canton errors right after a Splice tag often turn out to be Splice-side, not Canton-side.</Note>
 
-    **Common Canton gRPC errors and their usual causes**
+**Solution.** Pull `get_recent_deployments()` to see the freshest releases, then call `get_breaking_changes(from, to)` against the relevant version pair. Forum activity in the 14-day post-release window is usually the most reliable signal for newly surfaced regressions.
 
-    | Error code | Common cause |
-    |---|---|
-    | `TOPOLOGY_TOO_MANY_PENDING_TOPOLOGY_TRANSACTIONS` | Batch topology submissions exceeding participant limits |
-    | `UNAVAILABLE` | Participant or sequencer not yet ready; retry with backoff |
-    | `FAILED_PRECONDITION` | Contract not visible to submitting party, or command de-duplication window expired |
-    | `NOT_FOUND` | Package not uploaded to participant, or contract archived |
-    | `PERMISSION_DENIED` | Token expired or party not authorized on this participant |
-
-    **References**
-    - [CCPEDIA MCP tool: diagnose_error](/tools/code-errors)
-  </Accordion>
-
-  <Accordion title="Diagnose a Canton bug right after a Splice cut">
-    **Problem**
-
-    New Canton errors that appear immediately after a Splice release tag often turn out to be Splice-side regressions rather than Canton-core issues. Without knowing which release introduced the change, you may spend hours debugging in the wrong layer.
-
-    **Solution**
-
-    Work through this two-step sequence when a bug appears after a fresh release:
-
-    <Steps>
-      <Step title="Pull recent deployments">
-        Call `get_recent_deployments()` to see the freshest Canton and Splice releases, including their exact tags and release timestamps. This tells you which version boundary to investigate.
-
-        ```bash
-        get_recent_deployments()
-        # Returns: [{ tag: "splice/0.3.15", released: "2025-01-10T14:00Z" }, ...]
-        ```
-      </Step>
-      <Step title="Check breaking changes for the relevant pair">
-        Call `get_breaking_changes(from, to)` for the version pair that straddles when the bug appeared. Pay particular attention to the **forum activity** section, which covers the +14 day window after the tag. Community-observed regressions almost always surface here first.
-
-        ```bash
-        get_breaking_changes({ from: "splice/0.3.14", to: "splice/0.3.15" })
-        ```
-      </Step>
-      <Step title="Search for the specific error">
-        If the breaking changes list doesn't explain your issue, run `diagnose_error` with your full error text to find forum threads from other users who hit the same regression.
-      </Step>
-    </Steps>
-
-    **Why forum activity in the post-release window matters**
-
-    Splice cuts regularly include changes that affect both the Splice application layer and the underlying Canton participant. Regressions that are purely Splice-side often don't appear in the Canton changelog. The forum `validator-announce` and support threads in the +14 day window after a tag are consistently the first place these regressions are documented.
-
-    **References**
-    - [CCPEDIA MCP tools: get_recent_deployments, get_breaking_changes](/tools/code-errors)
-  </Accordion>
-</AccordionGroup>
-
-<Note>
-  If `diagnose_error` doesn't surface a prior resolution, your issue may be novel. In that case, use `find_expert({ topic: "topology" })` or the relevant component name to identify the forum contributors most likely to know the answer, then post in the Canton forum with your full error context.
-</Note>
+**References:**
+- [Code & Errors tool](/tools/code-errors)

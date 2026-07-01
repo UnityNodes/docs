@@ -1,7 +1,7 @@
 ---
-title: "Releases and SDK Tools — Canton Version and Deprecation Reference"
+title: "Canton SDK Tools — Versions, Releases, and Deprecations"
 sidebarTitle: "Releases"
-description: "9 tools to track Canton, Splice, and Daml SDK versions, fetch changelogs, audit deprecations, list npm packages, and map EVM concepts to Canton equivalents."
+description: "9 tools to track Canton, Splice, and Daml SDK versions, fetch changelogs, audit deprecations, list npm packages, and map EVM concepts to Canton."
 ---
 
 Before bumping any version in your Canton, Daml, or Splice project you should know what changed, what deprecated, and what is currently live on each network environment. CCPEDIA's 9 release and SDK tools cover all of that: current versions across all packages, per-version changelogs, npm package listings, a full deprecation registry, migration lookup, outdated-guidance detection, and an EVM-to-Canton concept mapper for developers coming from Solidity.
@@ -74,7 +74,7 @@ curl -X POST https://ccpedia.xyz/mcp \
 
 ### `get_current_versions`
 
-Get the freshest Canton SDK, Splice, Daml, and DPM versions, plus per-network Splice deployment status (DevNet, TestNet, MainNet) and any upcoming synchronizer-upgrade windows. This data is derived live on every call from two CCPEDIA-only joins: `github_releases` (latest stable tag per repo) and `mailing_messages` (validator-announce list). It is fresher than the Foundation Build-on-Canton KB snapshot, which can lag by weeks. Use this whenever a user asks what version to target or what is live on MainNet.
+Get the freshest Canton SDK, Splice, Daml, and DPM versions, plus per-network Splice deployment status (DevNet, TestNet, MainNet) and any upcoming synchronizer-upgrade windows. CCPEDIA derives this live on every call from the latest GitHub release tags and the validator-announce mailing list, so it is more current than static documentation snapshots that can lag by weeks. Use this whenever a user asks what version to target or what is live on MainNet.
 
 <Expandable title="Arguments">
   _No arguments. Call with `{}`._
@@ -136,7 +136,7 @@ curl -X POST https://ccpedia.xyz/mcp \
 
 ### `get_npm_packages`
 
-List the indexed Canton and Daml npm packages from the `sdk_versions` registry, optionally filtered by package name. Use this to discover available npm packages before adding a dependency to your project.
+List the indexed Canton and Daml npm packages tracked by CCPEDIA, optionally filtered by package name. Use this to discover available npm packages before adding a dependency to your project.
 
 <Expandable title="Arguments">
   <ParamField path="query" type="string">
@@ -270,7 +270,7 @@ curl -X POST https://ccpedia.xyz/mcp \
 
 ### `outdated_guidance_detector`
 
-Surface CCPEDIA content that mentions deprecated Canton or Daml tooling alongside your query — content that is likely outdated. Cross-references `foundation_kb.DEPRECATED` with doc pages, forum posts, and blog posts. Use this before sharing documentation or forum links to check whether they reference superseded tools or workflows.
+Surface CCPEDIA content that mentions deprecated Canton or Daml tooling alongside your query — content that is likely outdated. Checks documentation pages, forum posts, and blog posts against the full deprecation registry. Use this before sharing documentation or forum links to check whether they reference superseded tools or workflows.
 
 <Expandable title="Arguments">
   <ParamField path="query" type="string" required>

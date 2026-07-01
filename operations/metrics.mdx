@@ -1,5 +1,5 @@
 ---
-title: "CCPEDIA Public Adoption Metrics"
+title: "CCPEDIA Public Metrics — Adoption and Usage Dashboard"
 sidebarTitle: "Metrics"
 description: "CCPEDIA's adoption metrics are fully public. Learn what DAU, MCP tool calls, and integration sources are tracked, and why the data is open."
 ---
@@ -10,12 +10,12 @@ CCPEDIA's adoption metrics are public at [ccpedia.xyz/metrics](https://ccpedia.x
 
 Every metric in the dashboard comes from server-side instrumentation — no client-side analytics scripts, no third-party trackers.
 
-| Metric | Source |
+| Metric | How it is measured |
 |---|---|
-| Daily active users (humans and bots split) | `page_visits` table, classified by agent-class heuristic |
-| MCP tool calls by tool name | `mcp_calls` table, logged at the proxy layer |
-| API request rate | `api_requests` table |
-| Integration sources detected | `mcp_calls.source` field — values include `claude`, `cursor`, `windsurf`, `zed`, `slack-bot`, and others |
+| Daily active users (humans and bots split) | Server-side page view logs, classified by agent-class heuristic |
+| MCP tool calls by tool name | Proxy-layer call logs, recorded per tool invocation |
+| API request rate | Server-side request logs for the REST API |
+| Integration sources detected | Client identifier attached to each MCP call — values include `claude`, `cursor`, `windsurf`, `zed`, `slack-bot`, and others |
 
 The human / bot split on DAU uses a lightweight agent-class classifier that distinguishes browser sessions, MCP clients, and automated pipelines so you can see organic human adoption separately from programmatic usage.
 

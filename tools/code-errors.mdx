@@ -1,7 +1,7 @@
 ---
 title: "Code and Error Tools — Diagnose Canton Stack Issues"
 sidebarTitle: "Code & Errors"
-description: "4 tools to diagnose Canton errors, compare breaking changes across SDK versions, check individual GitHub issues, and fingerprint recurring ecosystem-wide bugs."
+description: "4 tools to diagnose Canton errors, identify breaking changes between SDK versions, look up GitHub issues, and fingerprint recurring ecosystem bugs."
 ---
 
 When something breaks in your Canton or Daml stack, CCPEDIA's 4 code and error tools give you a structured path from raw error output to resolved fix. You can paste an error message or stack trace to get matched forum threads and GitHub issues, compare two SDK versions to see what breaks between them, look up the current state of a specific issue or PR, and identify structural bugs that recur across the ecosystem month after month.
@@ -47,7 +47,7 @@ curl -X POST https://ccpedia.xyz/mcp \
 
 ### `get_breaking_changes`
 
-Compare two Canton, Daml, or Splice SDK versions and return the list of changes between them: release notes from `github_releases` plus any forum and GitHub reports near the release window. Use this when you are planning an upgrade and need to know "what breaks moving from X to Y?". Pass version strings as they appear in GitHub release tags, with or without a leading `v`.
+Compare two Canton, Daml, or Splice SDK versions and return the list of changes between them: GitHub release notes plus any forum and GitHub reports near the release window. Use this when you are planning an upgrade and need to know "what breaks moving from X to Y?". Pass version strings as they appear in GitHub release tags, with or without a leading `v`.
 
 <Expandable title="Arguments">
   <ParamField path="from_sdk" type="string" required>

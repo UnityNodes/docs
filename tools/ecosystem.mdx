@@ -1,14 +1,14 @@
 ---
 title: "Ecosystem Tools — Canton Projects, GitHub, and Gap Discovery"
 sidebarTitle: "Ecosystem"
-description: "6 tools for Canton ecosystem projects: dependency graphs, gap detection, GitHub discussions, project listings, and indexed repo browsing across 15+ Canton repos."
+description: "6 tools for Canton ecosystem projects: dependency graphs, gap detection, GitHub discussions, project listings, and repo browsing across 15+ Canton repos."
 ---
 
 The Canton ecosystem spans DeFi protocols, wallets, custody solutions, validator infrastructure, NaaS providers, and more. CCPEDIA's 6 ecosystem tools let you map how projects cluster around SDK versions, discover where the ecosystem has unmet demand, read GitHub Discussions from Canton repositories, browse the curated project directory, and list all indexed Canton repos. Whether you are scoping a new project, looking for collaboration opportunities, or doing ecosystem research, these tools give you the structural picture.
 
 ---
 
-### `ecosystem_dependency_graph`
+### `get_dependency_graph`
 
 Map ecosystem projects matching a topic to the SDK versions and repos they appear alongside, building a quick dependency picture. Use this to answer "if I build with SDK version X, who else is on it?" or to understand which SDK versions the ecosystem has actually adopted for a particular category of application.
 
@@ -25,7 +25,7 @@ Map ecosystem projects matching a topic to the SDK versions and repos they appea
   "id": 1,
   "method": "tools/call",
   "params": {
-    "name": "ecosystem_dependency_graph",
+    "name": "get_dependency_graph",
     "arguments": { "topic": "DeFi" }
   }
 }
@@ -34,7 +34,7 @@ Map ecosystem projects matching a topic to the SDK versions and repos they appea
 curl -X POST https://ccpedia.xyz/mcp \
   -H 'content-type: application/json' \
   -H 'accept: application/json, text/event-stream' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"ecosystem_dependency_graph","arguments":{"topic":"DeFi"}}}'
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_dependency_graph","arguments":{"topic":"DeFi"}}}'
 ```
 </CodeGroup>
 

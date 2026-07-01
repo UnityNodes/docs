@@ -1,108 +1,28 @@
 ---
-title: "Canton SV Operations: Upgrade Windows and Validator Bootstrap"
+title: "Canton SV Operations Patterns — Upgrades and Nodes"
+description: "Two Canton design patterns for planning around MainNet upgrade windows and bootstrapping a new validator without reading all the documentation end to end."
 sidebarTitle: "SV Operations"
-description: "Two SV operations patterns to plan around MainNet upgrade windows using live calendar data, and bootstrap new validators with structured onboarding guidance."
 ---
 
-Super Validator (SV) operations require coordination with the Canton Network's upgrade schedule and careful sequencing of the many configuration steps involved in standing up a new validator node. Missing an upgrade window can freeze your validator's ability to submit transactions, and validator onboarding has enough moving parts that teams frequently miss steps when following documentation that may not reflect the current Splice configuration. These two patterns address both situations with live data rather than static documentation.
+These patterns help Super Validator operators and node runners stay ahead of scheduled network events and navigate the validator onboarding process efficiently.
 
-<Tip>
-  Use the CCPEDIA `get_upcoming_operations` and `get_sv_schedule` MCP tools to stay synchronized with the Canton Network's live operation calendar. The calendar is synced from `sv-cal.canton.foundation` every 12 hours, so you always get current scheduling data.
-</Tip>
+## Plan around the next MainNet upgrade window
 
-<AccordionGroup>
-  <Accordion title="Plan around the next MainNet upgrade window">
-    **Problem**
+<Note>**Problem.** Ops teams hit traffic freezes, topology freezes, and synchronizer upgrades by surprise.</Note>
 
-    Operations teams hit topology freezes, traffic freezes, and synchronizer upgrades by surprise because the upgrade schedule is not prominently surfaced in the places teams naturally look. A topology freeze during an onboarding flow or a traffic freeze during a high-value transaction window can cause failed submissions that are difficult to explain to end users.
+**Solution.** Subscribe to the SV calendar via `get_upcoming_operations(days)` or query `get_sv_schedule(environment="MainNet")`. The calendar is refreshed from the SV foundation schedule regularly, so you always see the current planned windows.
 
-    **Solution**
+**References:**
+- [Featured Apps & SV tool](/tools/featured-apps-sv)
 
-    Subscribe to the SV calendar using the CCPEDIA MCP tools before planning any operations work. Two calls cover your needs:
+---
 
-    ```bash
-    # Get all upcoming operations in the next N days
-    get_upcoming_operations({ days: 14 })
-    # Returns scheduled upgrades, freezes, and maintenance windows
+## Bootstrap a new validator without re-reading the docs end-to-end
 
-    # Get the full schedule for a specific environment
-    get_sv_schedule({ environment: "MainNet" })
-    # Returns the complete operation calendar for MainNet
-    ```
+<Note>**Problem.** Validator onboarding has many moving parts: topology, traffic balance, ValidatorLicense, and sequencer configuration.</Note>
 
-    The calendar includes:
-    - **Synchronizer upgrades**: The Canton sequencer and domain upgrade windows
-    - **Topology freezes**: Windows where party onboarding submissions are blocked
-    - **Traffic freezes**: Windows where transaction submission throughput is restricted
-    - **Validator-announce notices**: Broadcast communications to all validator operators
+**Solution.** Run `get_started_guide(background="enterprise")` for the structured onboarding path, then `get_sv_schedule(environment="DevNet")` to plan around the next DevNet upgrade window. Cross-check with `get_kb_drift()` to ensure any knowledge base entries you consult reflect current release values.
 
-    Build these checks into your operational runbooks. Before scheduling any validator onboarding, topology change, or high-volume transaction batch, call `get_upcoming_operations` to confirm your window is clear.
-
-    **Recommended operational planning workflow**
-
-    <Steps>
-      <Step title="Check the 14-day horizon">
-        At the start of each sprint, run `get_upcoming_operations({ days: 14 })` and add any relevant windows to your team calendar.
-      </Step>
-      <Step title="Verify before scheduling">
-        Before booking any validator operation, run `get_sv_schedule({ environment: "MainNet" })` to confirm the specific time window is clear.
-      </Step>
-      <Step title="Set up advance monitoring">
-        Subscribe to `validator-announce` via `search_mailing_list({ group: "validator-announce" })` for out-of-band schedule changes that occur between CCPEDIA calendar syncs.
-      </Step>
-    </Steps>
-
-    **References**
-    - [CCPEDIA MCP tools: get_upcoming_operations, get_sv_schedule](/tools/featured-apps-sv)
-  </Accordion>
-
-  <Accordion title="Bootstrap a new validator without re-reading the docs end-to-end">
-    **Problem**
-
-    Validator onboarding involves many interdependent steps: topology configuration, traffic balance setup, `ValidatorLicense` issuance, sequencer connection, and party allocation. The official documentation covers each step, but the sequence matters and some configuration values change with each Splice release. Teams following documentation that is even a few weeks old regularly hit mismatches between the documented values and the current live network configuration.
-
-    **Solution**
-
-    Use a combination of three CCPEDIA tools to get a structured, current onboarding path:
-
-    ```bash
-    # Get a structured onboarding guide for your background
-    get_started_guide({ background: "enterprise" })
-    # Or for individual validators:
-    get_started_guide({ background: "individual" })
-
-    # Plan around the next DevNet upgrade to avoid conflicts
-    get_sv_schedule({ environment: "DevNet" })
-
-    # Cross-check your documentation against current live values
-    get_kb_drift()
-    ```
-
-    Work through these in order:
-
-    <Steps>
-      <Step title="Get your structured onboarding path">
-        Run `get_started_guide` with your background. The tool returns a sequenced checklist of onboarding steps tailored to your validator type, with current configuration values.
-      </Step>
-      <Step title="Plan around the DevNet schedule">
-        Run `get_sv_schedule({ environment: "DevNet" })` to find an upgrade-free window for your initial DevNet validation. Don't try to onboard during a topology freeze.
-      </Step>
-      <Step title="Check for KB drift">
-        Run `get_kb_drift()` to identify any fields in your reference documentation that have drifted from current live values. This surfaces the most common source of onboarding failures before you hit them.
-      </Step>
-      <Step title="Allocate parties and test on DevNet">
-        Follow your structured path on DevNet first. Confirm your `ValidatorLicense`, sequencer connection, and topology are all healthy before promoting to MainNet.
-      </Step>
-      <Step title="Promote to MainNet">
-        Repeat the `get_sv_schedule({ environment: "MainNet" })` check immediately before your MainNet onboarding window.
-      </Step>
-    </Steps>
-
-    **References**
-    - [CCPEDIA MCP tools: get_started_guide, get_sv_schedule, get_kb_drift](/tools/overview)
-  </Accordion>
-</AccordionGroup>
-
-<Note>
-  SV operations questions are frequently discussed in the `validator-announce` mailing list and in the Canton forum's SV-specific channels. Use `search_mailing_list({ query: "ValidatorLicense sequencer onboarding", group: "validator-announce" })` via CCPEDIA to find community-sourced solutions to specific onboarding issues you encounter.
-</Note>
+**References:**
+- [Featured Apps & SV tool](/tools/featured-apps-sv)
+- [Onboarding & Drift tool](/tools/onboarding-drift)

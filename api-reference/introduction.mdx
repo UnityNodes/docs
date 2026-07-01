@@ -1,5 +1,5 @@
 ---
-title: "CCPEDIA REST API v1 Reference"
+title: "CCPEDIA REST API v1 — Canton Network Data Reference"
 sidebarTitle: "Overview"
 description: "Read-only REST access to all CCPEDIA Canton Network data — CIPs, discussions, and source freshness — no auth or JSON-RPC required."
 ---
@@ -99,3 +99,20 @@ A successful response looks like this:
   Add this ping to your deployment pipeline to catch connectivity issues before
   they surface in production.
 </Tip>
+
+## Atom Feeds
+
+CCPEDIA publishes Atom feeds so you can subscribe to per-source updates in any feed reader or RSS-aware pipeline without polling the REST API.
+
+```
+GET https://ccpedia.xyz/feed/:source
+```
+
+Replace `:source` with any source slug returned by `GET /api/v1/sources` — for example `cip-forum`, `cip-mailing-list`, or `github-discussions-canton`. Each feed contains the 50 most recently indexed items for that source, with titles, timestamps, and direct links to the original content.
+
+```bash
+# Subscribe to CIP forum updates
+curl -s 'https://ccpedia.xyz/feed/cip-forum'
+```
+
+Atom feeds are unauthenticated, do not count against your REST rate limit, and respect the same `Cache-Control` freshness headers as the REST API.

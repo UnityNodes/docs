@@ -1,7 +1,7 @@
 ---
 title: "Featured Apps and SV Tools — Canton Network Live Data"
 sidebarTitle: "Apps & SV"
-description: "8 tools for Canton Featured Apps, Super Validator scheduling, network state snapshots, recent deployments, Canton Coin market data, and content catalog metrics."
+description: "8 MCP tools for Canton Featured Apps, SV scheduling, on-chain network state, recent deployments, Canton Coin market data, and content catalog metrics."
 ---
 
 CCPEDIA's Featured Apps and Super Validator category connects you to live Canton Network data: the Featured Apps catalogue sourced directly from the Scan API, the SV operations calendar for upcoming releases and freezes, real-time on-chain network state, Canton Coin market snapshots, and CCPEDIA's own content-catalog metrics. These 8 tools give you the operational picture you need whether you are building a dApp, running a validator, or tracking the health of the network.
@@ -10,7 +10,7 @@ CCPEDIA's Featured Apps and Super Validator category connects you to live Canton
 
 ### `get_app_metrics`
 
-Fetch metrics for one specific Featured App by its `app_id` (contract id from the Scan API). Returns name, category, TVL, 24-hour volume, user count, last activity, and any cross-referenced `ecosystem_projects` metadata. TVL, volume, and user counts may be null when only the Scan API source is available.
+Fetch metrics for one specific Featured App by its `app_id` (contract id from the Scan API). Returns name, category, TVL, 24-hour volume, user count, last activity, and any cross-referenced ecosystem project metadata. TVL, volume, and user counts may be null when only the Scan API source is available.
 
 <Expandable title="Arguments">
   <ParamField path="app_id" type="string" required>
@@ -102,7 +102,7 @@ curl -X POST https://ccpedia.xyz/mcp \
 
 ### `get_recent_deployments`
 
-List recent completed SV deployments and releases from `sv_operations_calendar` (operation types: `deploy`, `release`, `upgrade`), cross-referenced with `github_releases` when the title names a SemVer-looking tag. Use this to answer "what shipped on MainNet recently?"
+List recent completed SV deployments and releases from the SV operations calendar (operation types: `deploy`, `release`, `upgrade`), cross-referenced with GitHub releases when the title names a SemVer-looking tag. Use this to answer "what shipped on MainNet recently?"
 
 <Expandable title="Arguments">
   <ParamField path="limit" type="integer">

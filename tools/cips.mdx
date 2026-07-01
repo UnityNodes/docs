@@ -140,7 +140,7 @@ curl -X POST https://ccpedia.xyz/mcp \
 
 Comprehensive citation graph for a Canton Improvement Proposal. Returns every place across CCPEDIA's corpus that references that CIP — per-source counts and samples for: sibling CIPs (declared `requires:` or content-mentions), individual forum posts, individual mailing-list messages (`cip-vote`, `cip-discuss`, `grants-discuss`, `validator-announce`), GitHub items (issues, PRs, and dev-fund proposals across all indexed Canton repos), blog posts, and YouTube videos with transcript matches.
 
-CCPEDIA's parsed `mailing_messages.cip_id` column gives per-message granularity unavailable elsewhere. Use this when you need impact analysis — "who is referencing CIP-X and where?" — before writing a dependent proposal or performing a governance audit.
+Per-message granularity across mailing-list sources gives you a finer-grained picture than aggregated mention counts. Use this when you need impact analysis — "who is referencing CIP-X and where?" — before writing a dependent proposal or performing a governance audit.
 
 <Expandable title="Arguments">
   <ParamField path="cip_id" type="string" required>

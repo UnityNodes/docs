@@ -1,64 +1,16 @@
 ---
-title: "Canton Daml Patterns: Finding Working Code Examples by Topic"
+title: "Daml Design Patterns for Canton Network Developers"
+description: "One Canton design pattern for finding working Daml code examples by topic, surfacing forum threads with embedded code blocks faster than reading the spec."
 sidebarTitle: "Daml"
-description: "One Daml pattern for finding working, forum-sourced Daml code examples by topic faster than reading the specification or searching with a general search engine."
 ---
 
-The Canton forum contains a large corpus of working Daml code contributed by DA engineers, ecosystem builders, and community members answering real questions. This code is practical, tested in real environments, and often more instructive than the formal specification — because it shows how to handle the edge cases that the spec doesn't dwell on. The problem is that this code is effectively invisible to general search engines. These pattern addresses that directly: use CCPEDIA's purpose-built code search to find what you need in seconds rather than hours.
+This pattern helps you find real, working Daml code quickly when you need a practical starting point rather than reading through formal specifications.
 
-<Tip>
-  Use the CCPEDIA `find_code_examples` MCP tool as your first stop when you need a working Daml sketch. It searches specifically for forum threads with embedded code blocks, filtered by topic — something no general search engine can do reliably.
-</Tip>
+## Find working Daml code by topic
 
-<AccordionGroup>
-  <Accordion title="Find working Daml code by topic">
-    **Problem**
+<Note>**Problem.** Forum threads contain working Daml code but general web search rarely surfaces them reliably.</Note>
 
-    Canton forum threads contain working Daml code — but general search engines rarely surface them because the forum's content is dynamically rendered and the threads don't rank highly for Daml-specific queries. Developers default to reading the specification when they need a code example, which is slower and doesn't show how to handle the practical edge cases that the spec glosses over.
+**Solution.** `find_code_examples(topic)` returns forum threads with embedded code blocks matching the topic. This is faster than reading the spec when you need a working sketch to adapt.
 
-    **Solution**
-
-    Call `find_code_examples({ topic: "..." })` to search forum threads that contain embedded `<pre>` or `<code>` blocks matching your topic. The tool returns threads ranked by relevance, with the code excerpt and thread context.
-
-    ```bash
-    # Example MCP call — find working Daml for a specific pattern
-    find_code_examples({ topic: "party-based authorization with observer choice" })
-
-    # More targeted queries work better than broad ones
-    find_code_examples({ topic: "Daml script testing party allocation" })
-    find_code_examples({ topic: "CIP-0056 ITransferable interface implementation" })
-    find_code_examples({ topic: "Canton template upgrade migration" })
-    ```
-
-    The tool returns forum thread links alongside the matched code blocks so you can read the surrounding discussion — which often explains why the code is structured the way it is, including the gotchas the author hit before arriving at that solution.
-
-    **What makes a good query**
-
-    | Query style | Effectiveness |
-    |---|---|
-    | Specific Daml concept + operation | High — e.g. `"NonConsumingChoice observer visibility"` |
-    | CIP number + interface name | High — e.g. `"CIP-0056 Transfer interface"` |
-    | Error message fragment | Medium — e.g. `"missing authorization from"` |
-    | Generic keyword | Low — e.g. `"Daml template"` |
-
-    Use specific Daml terminology rather than general descriptions. If your first query returns too many results, add the specific type, choice name, or error text to narrow it.
-
-    **When to use this pattern**
-
-    - When the specification describes what an interface requires but not how to implement it
-    - When you have a working mental model but need a concrete syntax reference
-    - When you hit a Daml compilation error and want to see how others resolved it
-    - When exploring a Daml feature you haven't used before and want a practical starting point
-
-    **Combining with other tools**
-
-    After finding a relevant code example, use `find_expert({ topic: "..." })` to identify the thread's author and their other contributions. DA engineers who post working code in forum answers often have additional threads that go deeper into the same topic.
-
-    **References**
-    - [CCPEDIA MCP tool: find_code_examples](/tools/code-errors)
-  </Accordion>
-</AccordionGroup>
-
-<Note>
-  The CCPEDIA code index is updated continuously as new forum threads are posted. If you can't find what you need today, try again in a few days — active Daml questions get answered on the forum regularly, and those answers become searchable via `find_code_examples` within hours of posting.
-</Note>
+**References:**
+- [Code & Errors tool](/tools/code-errors)

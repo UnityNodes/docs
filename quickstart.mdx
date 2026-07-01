@@ -1,7 +1,7 @@
 ---
-title: "Get Started with CCPEDIA in Under Two Minutes"
+title: "CCPEDIA Quickstart: Connect Your AI Tool to Canton"
 sidebarTitle: "Quickstart"
-description: "Connect CCPEDIA to Claude Desktop, Cursor, or any MCP client and start querying Canton data with no signup or API key required."
+description: "Connect CCPEDIA to Claude Desktop, Cursor, or any MCP client and start querying live Canton data with no signup or API key required."
 ---
 
 CCPEDIA serves its MCP endpoint at `https://ccpedia.xyz/mcp`. The URL is the same for every supported AI client, requires no authentication, and is ready to use the moment you add it to your config. Pick your tool below, follow the integration guide, and you'll have 78 live Canton tools available in your AI assistant in under two minutes.
@@ -51,7 +51,7 @@ Once connected, ask any of these in your AI client. Tool routing happens automat
     Routes to `get_current_versions`. The tool joins GitHub release tags with posts from the validator-announce mailing list to return the authoritative current version alongside any pending upgrade notices.
   </Accordion>
   <Accordion title="Diagnose this error: TOPOLOGY_TOO_MANY_PENDING_TOPOLOGY_TRANSACTIONS">
-    Routes to `diagnose_error`. The tool tokenises the error string and searches Canton Forum threads and GitHub issues for prior fixes, workarounds, and related configuration changes.
+    Routes to `diagnose_error`. The tool parses the error string and searches Canton Forum threads and GitHub issues for prior fixes, workarounds, and related configuration changes.
   </Accordion>
   <Accordion title="Show dev fund proposals related to validator monitoring">
     Routes to `search_community` and `detect_builder_overlap`. Surfaces existing proposals and active builders in that space so you can avoid duplicating work already in progress.
