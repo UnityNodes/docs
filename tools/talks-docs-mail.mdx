@@ -1,0 +1,294 @@
+---
+title: "Talks, Docs, and Mail Tools — Canton Knowledge Resources"
+sidebarTitle: "Talks & Docs"
+description: "8 tools covering Canton YouTube talks, official documentation pages, whitepapers, Foundation info, and four governance mailing lists on lists.sync.global."
+---
+
+CCPEDIA indexes Canton's full knowledge stack — from official docs and whitepapers to curated YouTube talks and the governance mailing lists on `lists.sync.global`. These 8 tools let you fetch complete doc pages by id, read full video transcripts, browse the whitepaper catalogue, search Foundation team and governance pages, and navigate the four Canton mailing groups: `cip-discuss`, `cip-vote`, `cip-announce`, and `validator-announce`. Each channel is distinct — make sure you're reaching for the right tool for the right source.
+
+---
+
+### `get_doc`
+
+Fetch the full text of one indexed Canton-ecosystem documentation page — Canton, Daml, Splice, and integrated partner docs — by its numeric id. Use this after `search` or `semantic_search` returns a doc id to read complete commands, flags, and full sections that a search snippet truncates. This tool requires an id and is not a discovery tool; use `search` or `semantic_search` first.
+
+<Expandable title="Arguments">
+  <ParamField path="id" type="integer" required>
+    Doc page ID from `search` or `semantic_search` results.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_doc",
+    "arguments": { "id": 4217 }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_doc","arguments":{"id":4217}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_foundation_info`
+
+Retrieve official Canton Foundation pages from `canton.foundation`: team and board bios, working groups, membership process, and the grants program. This is a free-text topic search over CCPEDIA's index of the `canton.foundation` site returning matched-page snippets — not the curated knowledge base. Use this when a user asks about Foundation people, governance structure, or member and grant processes.
+
+<Expandable title="Arguments">
+  <ParamField path="topic" type="string" required>
+    Free-text topic, e.g. `"team"`, `"executive director"`, `"working groups"`, `"membership"`, `"grants"`, `"board"`.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_foundation_info",
+    "arguments": { "topic": "working groups" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_foundation_info","arguments":{"topic":"working groups"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_mailing_thread`
+
+Get every message (oldest first) in a specific Canton Network governance mailing-list thread on `lists.sync.global` — covering `cip-discuss`, `cip-vote`, `grants-discuss`, and more. Pass the thread id from `list_mailing_threads`. This is the email channel, not the web forum (`get_discussion`) or GitHub Discussions.
+
+<Expandable title="Arguments">
+  <ParamField path="id" type="string" required>
+    Thread id from `list_mailing_threads`, e.g. `"cip-discuss-12345"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_mailing_thread",
+    "arguments": { "id": "cip-discuss-12345" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_mailing_thread","arguments":{"id":"cip-discuss-12345"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_video`
+
+Get a Canton Network video that CCPEDIA has cached — from curated channels: Canton Network, Digital Asset, Sync Insights, Canton Foundation, and Daml — by its YouTube id. Returns title, channel, publish date, description, and full transcript text if stored. Use this to read a talk transcript in full. Obtain ids from `list_videos` or `search`. This tool does not fetch arbitrary YouTube videos.
+
+<Expandable title="Arguments">
+  <ParamField path="id" type="string" required>
+    YouTube video id, e.g. `"dQw4w9WgXcQ"` — obtained from `list_videos` or `search_talks`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_video",
+    "arguments": { "id": "dQw4w9WgXcQ" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_video","arguments":{"id":"dQw4w9WgXcQ"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_whitepaper`
+
+Get the full extracted text of a specific Canton Network whitepaper by slug. Returns title, tag, page count, PDF link, and body text (up to ~50k characters). Call `list_whitepapers` first to obtain valid slugs.
+
+<Expandable title="Arguments">
+  <ParamField path="slug" type="string" required>
+    Whitepaper slug, e.g. `"canton-network-whitepaper"` — from `list_whitepapers`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_whitepaper",
+    "arguments": { "slug": "canton-network-whitepaper" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_whitepaper","arguments":{"slug":"canton-network-whitepaper"}}}'
+```
+</CodeGroup>
+
+---
+
+### `list_mailing_threads`
+
+List threads from the Canton Network governance mailing lists on `lists.sync.global` — groups: `cip-discuss`, `cip-vote`, `cip-announce`, `globalSyncForum`, `grants-discuss`, and `validator-announce`. Filter by group, CIP number, or date. Returns thread metadata only; use `get_mailing_thread` for full message bodies. This is the email channel, distinct from the web forum and GitHub Discussions.
+
+<Expandable title="Arguments">
+  <ParamField path="group" type="string">
+    Restrict to one of the six indexed groups, e.g. `"cip-discuss"`, `"validator-announce"`.
+  </ParamField>
+  <ParamField path="cip_id" type="string">
+    CIP number filter, e.g. `"0117"`. Returns only threads tagged with this CIP.
+  </ParamField>
+  <ParamField path="since" type="string">
+    Earliest `last_post_at` ISO date, e.g. `"2024-01-01"`.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned.
+  </ParamField>
+  <ParamField path="offset" type="integer">
+    Pagination offset.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "list_mailing_threads",
+    "arguments": { "group": "cip-vote", "cip_id": "0117" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_mailing_threads","arguments":{"group":"cip-vote","cip_id":"0117"}}}'
+```
+</CodeGroup>
+
+---
+
+### `list_videos`
+
+List Canton Network videos cached in CCPEDIA, filtered by channel (Canton Network, Digital Asset, Sync Insights, Canton Foundation, Daml), publish date (`since`), and transcript availability. Returns metadata only — id, title, channel, and date. Call `get_video` with an id for the full transcript. These are curated Canton ecosystem videos, not general YouTube.
+
+<Expandable title="Arguments">
+  <ParamField path="channel" type="string">
+    Channel name filter, e.g. `"Canton Network"`, `"Digital Asset"`, `"Sync Insights"`, `"Canton Foundation"`, `"Daml"`. Case-insensitive substring.
+  </ParamField>
+  <ParamField path="since" type="string">
+    Earliest `published_at` ISO date, e.g. `"2025-01-01"`.
+  </ParamField>
+  <ParamField path="has_transcript" type="boolean">
+    If `true`, only return videos with a stored transcript. If `false`, only those still missing one. Omit for both.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned.
+  </ParamField>
+  <ParamField path="offset" type="integer">
+    Pagination offset.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "list_videos",
+    "arguments": { "channel": "Canton Network", "has_transcript": true }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_videos","arguments":{"channel":"Canton Network","has_transcript":true}}}'
+```
+</CodeGroup>
+
+---
+
+### `list_whitepapers`
+
+List every Canton Network whitepaper indexed by CCPEDIA, returning slug, title, description, tag, and page count — metadata only, no body text. Use the returned slug with `get_whitepaper` to fetch the full content of a specific paper.
+
+<Expandable title="Arguments">
+  _No arguments. Call with `{}`._
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "list_whitepapers",
+    "arguments": {}
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_whitepapers","arguments":{}}}'
+```
+</CodeGroup>
+
+---
+
+<Note>
+  Back to the full tool index: [MCP Tools Overview](/tools/overview)
+</Note>

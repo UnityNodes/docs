@@ -1,0 +1,305 @@
+---
+title: "Releases and SDK Tools — Canton Version and Deprecation Reference"
+sidebarTitle: "Releases"
+description: "9 tools to track Canton, Splice, and Daml SDK versions, fetch changelogs, audit deprecations, list npm packages, and map EVM concepts to Canton equivalents."
+---
+
+Before bumping any version in your Canton, Daml, or Splice project you should know what changed, what deprecated, and what is currently live on each network environment. CCPEDIA's 9 release and SDK tools cover all of that: current versions across all packages, per-version changelogs, npm package listings, a full deprecation registry, migration lookup, outdated-guidance detection, and an EVM-to-Canton concept mapper for developers coming from Solidity.
+
+---
+
+### `check_deprecation`
+
+Check whether a specific Canton or Daml toolchain item — CLI, SDK package, or command — is deprecated. Returns `DEPRECATED` (with its replacement), `CURRENT`, or `NOT_FOUND`. Always call this before recommending any Canton tool or package to a developer. The check is scoped to Canton/Daml/Splice only — it is not a general npm or pip deprecation checker.
+
+<Expandable title="Arguments">
+  <ParamField path="name" type="string" required>
+    Tool, package, or command to check, e.g. `"daml-assistant"`, `"Navigator"`, `"dpm"`, `"canton sandbox"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "check_deprecation",
+    "arguments": { "name": "Navigator" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"check_deprecation","arguments":{"name":"Navigator"}}}'
+```
+</CodeGroup>
+
+---
+
+### `compare_to_evm`
+
+Map one Ethereum or EVM concept — smart contract, wallet, gas, ERC20, Hardhat, ABI — to its Canton Network equivalent, for developers migrating from Solidity or EVM toolchains to Canton. Use this for single concept-to-concept translations. For a full EVM-to-Canton learning path use `get_started_guide` instead.
+
+<Expandable title="Arguments">
+  <ParamField path="concept" type="string" required>
+    EVM concept to translate, e.g. `"smart contract"`, `"wallet"`, `"gas"`, `"ERC20"`, `"Hardhat"`, `"Remix"`, `"ABI"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "compare_to_evm",
+    "arguments": { "concept": "ERC20" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"compare_to_evm","arguments":{"concept":"ERC20"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_current_versions`
+
+Get the freshest Canton SDK, Splice, Daml, and DPM versions, plus per-network Splice deployment status (DevNet, TestNet, MainNet) and any upcoming synchronizer-upgrade windows. This data is derived live on every call from two CCPEDIA-only joins: `github_releases` (latest stable tag per repo) and `mailing_messages` (validator-announce list). It is fresher than the Foundation Build-on-Canton KB snapshot, which can lag by weeks. Use this whenever a user asks what version to target or what is live on MainNet.
+
+<Expandable title="Arguments">
+  _No arguments. Call with `{}`._
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_current_versions",
+    "arguments": {}
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_current_versions","arguments":{}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_latest_release`
+
+Get the latest release for one Canton, Daml, Splice, or DPM package. Returns the version tag, publish date, and release notes. For a multi-package overview use `get_current_versions` instead.
+
+<Expandable title="Arguments">
+  <ParamField path="package" type="string" required>
+    Repo or package name: `"canton"`, `"daml"`, `"dpm"`, `"splice"`, or a full `owner/repo`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_latest_release",
+    "arguments": { "package": "canton" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_latest_release","arguments":{"package":"canton"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_npm_packages`
+
+List the indexed Canton and Daml npm packages from the `sdk_versions` registry, optionally filtered by package name. Use this to discover available npm packages before adding a dependency to your project.
+
+<Expandable title="Arguments">
+  <ParamField path="query" type="string">
+    Optional substring filter on package name, e.g. `"@daml"`.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max packages returned (default 25).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_npm_packages",
+    "arguments": { "query": "@daml" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_npm_packages","arguments":{"query":"@daml"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_sdk_changelog`
+
+Fetch the release-notes body for one SDK version across `canton`, `daml`, `dpm`, or `decentralized-canton-sync` (Splice). Returns the rendered release body and a link to the GitHub release. Use this to read the detailed changelog for a specific version before or after an upgrade.
+
+<Expandable title="Arguments">
+  <ParamField path="version" type="string" required>
+    Version tag, e.g. `"3.5.6"`, `"v3.5.6"`, or `"0.6.10"`.
+  </ParamField>
+  <ParamField path="repo" type="string">
+    Optional repo hint: `"canton"`, `"daml"`, `"dpm"`, or `"splice"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_sdk_changelog",
+    "arguments": { "version": "3.5.6", "repo": "canton" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_sdk_changelog","arguments":{"version":"3.5.6","repo":"canton"}}}'
+```
+</CodeGroup>
+
+---
+
+### `list_deprecations`
+
+List all known deprecated Daml and Canton CLI commands, packages, and tools with their modern replacements. Returns a compact table you can scan, optionally filtered by category (`cli`, `package`, `tool`, `api`, `workflow`). Use this to enumerate or browse the full deprecation registry; use `migrate_lookup` to look up a specific deprecated name.
+
+<Expandable title="Arguments">
+  <ParamField path="category" type="string">
+    Category filter: `"cli"`, `"package"`, `"tool"`, `"api"`, or `"workflow"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "list_deprecations",
+    "arguments": { "category": "cli" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_deprecations","arguments":{"category":"cli"}}}'
+```
+</CodeGroup>
+
+---
+
+### `migrate_lookup`
+
+Look up the modern replacement for a deprecated Daml or Canton CLI command, npm package, or tool — for example `"daml start"`, `"@daml/ledger"`, `"Navigator"`, `"Daml Triggers"`, or `"splice-wallet-payments subscription"`. Returns the replacement, the since-version, install instructions where applicable, and a migration note. Use this when a user mentions a specific deprecated symbol; use `list_deprecations` to browse all known deprecation pairs.
+
+<Expandable title="Arguments">
+  <ParamField path="query" type="string" required>
+    The deprecated command, package, or tool name to look up. Best-match search.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "migrate_lookup",
+    "arguments": { "query": "Navigator" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"migrate_lookup","arguments":{"query":"Navigator"}}}'
+```
+</CodeGroup>
+
+---
+
+### `outdated_guidance_detector`
+
+Surface CCPEDIA content that mentions deprecated Canton or Daml tooling alongside your query — content that is likely outdated. Cross-references `foundation_kb.DEPRECATED` with doc pages, forum posts, and blog posts. Use this before sharing documentation or forum links to check whether they reference superseded tools or workflows.
+
+<Expandable title="Arguments">
+  <ParamField path="query" type="string" required>
+    Topic to scan, e.g. `"daml triggers deployment"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "outdated_guidance_detector",
+    "arguments": { "query": "daml triggers deployment" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"outdated_guidance_detector","arguments":{"query":"daml triggers deployment"}}}'
+```
+</CodeGroup>
+
+---
+
+<Note>
+  Back to the full tool index: [MCP Tools Overview](/tools/overview)
+</Note>

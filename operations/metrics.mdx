@@ -1,0 +1,44 @@
+---
+title: "CCPEDIA Public Adoption Metrics"
+sidebarTitle: "Metrics"
+description: "CCPEDIA's adoption metrics are fully public. Learn what DAU, MCP tool calls, and integration sources are tracked, and why the data is open."
+---
+
+CCPEDIA's adoption metrics are public at [ccpedia.xyz/metrics](https://ccpedia.xyz/metrics). This page explains what is tracked, how privacy is preserved, and why the data is open by default rather than locked behind a login.
+
+## What we track
+
+Every metric in the dashboard comes from server-side instrumentation — no client-side analytics scripts, no third-party trackers.
+
+| Metric | Source |
+|---|---|
+| Daily active users (humans and bots split) | `page_visits` table, classified by agent-class heuristic |
+| MCP tool calls by tool name | `mcp_calls` table, logged at the proxy layer |
+| API request rate | `api_requests` table |
+| Integration sources detected | `mcp_calls.source` field — values include `claude`, `cursor`, `windsurf`, `zed`, `slack-bot`, and others |
+
+The human / bot split on DAU uses a lightweight agent-class classifier that distinguishes browser sessions, MCP clients, and automated pipelines so you can see organic human adoption separately from programmatic usage.
+
+## Privacy
+
+CCPEDIA does not collect personal data. Specifically:
+
+- **IP addresses** are hashed with a daily-rotating salt before storage. The raw IP is never written to disk, so there is no way to reverse the hash after the salt rotates.
+- **Session IDs** are random 32-character hex strings stored in a first-party cookie. They are not linked to any identity and are not shared with third parties.
+- **No personal data** — no names, email addresses, account IDs, or behavioural profiles are collected or retained.
+
+Because raw IPs are never persisted, the metrics data is safe to publish in full without redaction.
+
+## Why metrics are public
+
+CCPEDIA exists to be used, and public metrics let everyone verify that it is. There are three concrete audiences who benefit from open data:
+
+**Canton teams** can see that adoption is real and growing without having to ask for a private report. If your team is building a tool that calls CCPEDIA's MCP interface, you can check the integration source breakdown to confirm your calls are being attributed correctly.
+
+**The Canton Foundation** can track ecosystem health across the full developer surface — not just the forum or GitHub — without requiring CCPEDIA to grant special access. The metrics dashboard is a shared source of truth.
+
+**Funders and grant reviewers** can verify milestone acceptance criteria without ad-hoc data requests. If a milestone requires a certain level of MCP adoption or daily active usage, the public dashboard provides the evidence directly.
+
+<Note>
+  The live metrics dashboard is at [https://ccpedia.xyz/metrics](https://ccpedia.xyz/metrics). No login is required and the data is updated continuously.
+</Note>

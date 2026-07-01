@@ -1,0 +1,77 @@
+---
+title: "Canton Public Goods: Keeping the Foundation MCP Knowledge Base Current"
+sidebarTitle: "Public Goods"
+description: "One public goods pattern for contributing to the Canton Foundation MCP knowledge base by detecting drift between the curated KB and live release data via CCPEDIA."
+---
+
+The Canton ecosystem relies on shared knowledge infrastructure — documentation, knowledge bases, tooling, and indexes that every builder benefits from. The Foundation's `knowledge-base.json` is one of the most widely used of these shared resources: it powers the official Build-on-Canton MCP server and is referenced by AI assistants, onboarding tools, and ecosystem dashboards. When this file drifts behind live releases, every downstream user is affected. This pattern describes how CCPEDIA detects and corrects that drift automatically — and how you can contribute to the same process.
+
+<Tip>
+  Run the CCPEDIA `get_kb_drift` MCP tool before relying on any static knowledge base for current configuration values, version numbers, or API endpoints. It tells you exactly which fields are stale and what the correct current values are.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Help keep the Foundation MCP KB current">
+    **Problem**
+
+    The curated Foundation `knowledge-base.json` drifts behind live releases because the Canton and Splice release cadence is faster than any single maintainer can track manually. When the KB drifts, every tool and assistant that reads from it returns stale values — wrong version numbers, outdated endpoint URLs, deprecated configuration keys. The maintainer of the KB cannot scan every source by hand with releases shipping every one to two weeks.
+
+    **Solution**
+
+    CCPEDIA runs `get_kb_drift` daily, compares the KB's values against live release data from GitHub tags, the `validator-announce` mailing list, and other authoritative sources, and automatically opens pull requests to `canton-network-devs/Build-on-Canton-MCP` with the corrections.
+
+    Anyone can preview what CCPEDIA would submit without actually opening a PR:
+
+    ```bash
+    # Preview the drift corrections CCPEDIA would submit
+    npx ts-node scripts/generate-drift-pr.ts --dry-run
+    ```
+
+    You can also call `get_kb_drift` directly through the CCPEDIA MCP server to see the current drift state at any time:
+
+    ```bash
+    # MCP call — see which KB fields are currently stale
+    get_kb_drift()
+    # Returns: [
+    #   { field: "cantonVersion", current: "2.10.2", live: "2.10.3" },
+    #   { field: "spliceVersion", current: "0.3.14", live: "0.3.15" },
+    #   ...
+    # ]
+    ```
+
+    **How the automated PR workflow operates**
+
+    <Steps>
+      <Step title="Daily drift scan">
+        CCPEDIA compares every field in `knowledge-base.json` against live authoritative sources: GitHub release tags, mailing-list announcements, and public API endpoints.
+      </Step>
+      <Step title="Diff generation">
+        Fields that differ between the KB and live sources are collected into a structured diff.
+      </Step>
+      <Step title="PR creation">
+        CCPEDIA opens a pull request to the `canton-network-devs/Build-on-Canton-MCP` repository with the diff applied and a summary of what changed and why.
+      </Step>
+      <Step title="Human review">
+        A maintainer reviews the PR to confirm the changes are correct before merging. Automated corrections are never merged without human sign-off.
+      </Step>
+    </Steps>
+
+    **How you can contribute**
+
+    - Run `get_kb_drift()` via CCPEDIA and open a manual PR if the automated one hasn't fired yet for a recent release
+    - Review open drift PRs in `canton-network-devs/Build-on-Canton-MCP` and approve those you can verify
+    - Add new sources to CCPEDIA's monitoring list by opening an issue describing the authoritative source for a KB field that isn't currently tracked
+
+    **Why this matters**
+
+    Every time a KB field is corrected, every AI assistant, onboarding tool, and ecosystem dashboard that reads from the Foundation MCP gets the right answer. A five-minute PR review cascades into better answers for hundreds of builders. Public goods maintenance is one of the highest-leverage contributions you can make to the Canton ecosystem.
+
+    **References**
+    - [CCPEDIA MCP tool: get_kb_drift](/tools/onboarding-drift)
+    - [canton-network-devs/Build-on-Canton-MCP on GitHub](https://github.com/canton-network-devs/Build-on-Canton-MCP)
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  CCPEDIA itself is a public good maintained by the community. If you find that CCPEDIA's indexes are missing a source, that a tool returns stale data, or that a pattern on this site is incorrect, open an issue or PR. The maintainer reviews contributions actively, and accurate information in CCPEDIA improves outcomes for everyone building on Canton.
+</Note>

@@ -1,0 +1,73 @@
+---
+title: "CCPEDIA: Canton Network Knowledge Platform"
+sidebarTitle: "Introduction"
+description: "CCPEDIA is a continuously-synced Canton knowledge layer. Learn what it does, how data flows, and which access layer fits your workflow."
+---
+
+CCPEDIA is a knowledge layer for Canton Network developers. It continuously syncs every official Canton data surface and serves it through a single MCP endpoint at `https://ccpedia.xyz/mcp`, a REST API, Atom feeds, and a web UI. Instead of hunting across eight separate sites to answer a Canton question, you ask your AI tool and CCPEDIA retrieves the current answer from the source.
+
+## Why this exists
+
+Canton reference material is scattered across more than eight separate places. The forum, the docs site, the CIPs repository, four mailing lists, GitHub issues spread across a dozen repos, the Foundation knowledge base, the dev fund tracker, the SV calendar, the ecosystem registry, and a few hundred hours of YouTube talks each live in their own silo.
+
+AI coding assistants only know what you paste into the prompt. If you forget to include the relevant GitHub issue, the relevant CIP, or the current SDK version, the assistant answers from its training data — which may be months out of date. CCPEDIA solves this by syncing all of it continuously and serving it through one endpoint your AI client can call directly, in real time.
+
+## What CCPEDIA syncs
+
+CCPEDIA ingests 25 official Canton data sources on a rolling schedule. The table below lists each source and how frequently it refreshes.
+
+| Source | Refresh cadence |
+|---|---|
+| Canton Forum | 5 minutes |
+| Canton Docs site | 15 minutes |
+| CIPs repository | 10 minutes |
+| GitHub issues (core repos) | 10 minutes |
+| GitHub releases (core repos) | 10 minutes |
+| GitHub pull requests | 15 minutes |
+| validator-announce mailing list | 5 minutes |
+| technical-discuss mailing list | 5 minutes |
+| governance-discuss mailing list | 5 minutes |
+| dev-fund mailing list | 5 minutes |
+| Dev fund tracker | 15 minutes |
+| SV calendar | 12 hours |
+| Ecosystem registry | 30 minutes |
+| Foundation knowledge base | 30 minutes |
+| Canton YouTube channel | 60 minutes |
+| App metrics feed | 15 minutes |
+| Validator status feed | 5 minutes |
+| Canton SDK changelog | 15 minutes |
+| Canton error index | 30 minutes |
+| Canton Node documentation | 30 minutes |
+| Splice documentation | 30 minutes |
+| SuperValidator announcements | 5 minutes |
+| Canton roadmap | 60 minutes |
+| Canton blog | 60 minutes |
+| Daml finance docs | 30 minutes |
+
+## Access layers
+
+Every data source is available through four interfaces. Pick the one that fits your use case.
+
+| Layer | What it is | Best for |
+|---|---|---|
+| MCP server at `/mcp` | 78 tools your AI calls over JSON-RPC 2.0 | Claude Desktop, Cursor, Windsurf, Zed, any MCP client |
+| REST API v1 at `/api/v1/*` | The same data as plain HTTP JSON | Dashboards, scripts, monitoring, custom apps |
+| Atom feeds at `/feed/*` | Per-source event firehose in Atom format | RSS readers, alerting pipelines |
+| Web UI at `ccpedia.xyz` | Human-readable search and browse | Developers and governance researchers |
+
+## No auth, no signup
+
+The MCP endpoint at `https://ccpedia.xyz/mcp` is fully public. You do not need an account or an API key to use it.
+
+The only constraint is a rate limit of **60 calls per 15 minutes per IP address**. If you exceed that limit, wait 15 minutes and your quota resets automatically. Calls are logged for aggregate adoption metrics, but no personal data is stored.
+
+If you need a higher rate limit or want full control over your data, you can self-host. The full source is available at [github.com/UnityNodes/ccpedia](https://github.com/UnityNodes/ccpedia) under the Apache 2.0 license. Fork it, configure your own sync credentials, and run it wherever you like.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Add CCPEDIA to your AI tool in under two minutes.
+  </Card>
+  <Card title="Integrations" icon="plug" href="/integrations/overview">
+    Step-by-step guides for every supported MCP client.
+  </Card>
+</CardGroup>

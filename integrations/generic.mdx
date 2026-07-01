@@ -1,0 +1,116 @@
+---
+title: "Connect Any MCP Client to CCPEDIA"
+sidebarTitle: "Generic Client"
+description: "Connect any MCP-compatible client to CCPEDIA using JSON-RPC 2.0 over streamable HTTP — no auth, no installation required."
+---
+
+If your client is not covered by the specific guides in this section, you can connect it to CCPEDIA directly as long as it speaks JSON-RPC 2.0 over streamable HTTP. The endpoint has no authentication, no registration, and no SDK requirement. If your client expects stdio instead of HTTP, use the `mcp-remote` bridge described in the [stdio clients](#stdio-clients) section below.
+
+## Transport details
+
+Use the following values when configuring your client:
+
+| Property | Value |
+|---|---|
+| URL | `https://ccpedia.xyz/mcp` |
+| Method | `POST` |
+| Content-Type | `application/json` |
+| Accept | `application/json, text/event-stream` |
+| Authentication | None required |
+
+Every request is a standard JSON-RPC 2.0 object sent in the POST body. Responses arrive either as a single JSON object (`application/json`) or as a server-sent event stream (`text/event-stream`), depending on the method and your `Accept` header.
+
+## List available tools
+
+Send a `tools/list` request to retrieve the full catalog of CCPEDIA tools. This is also the right call to verify that your client can reach the endpoint.
+
+**JSON-RPC request body:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/list",
+  "params": {}
+}
+```
+
+**curl equivalent:**
+
+```bash
+curl -s -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+```
+
+A successful response begins with `{"jsonrpc":"2.0","id":1,"result":{"tools":[...` and lists all available tools with their names, descriptions, and input schemas.
+
+## Call a tool
+
+Use `tools/call` to invoke a specific tool. Pass the tool name and its arguments inside the `params` object.
+
+**Example — find an expert on a Canton topic:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "find_expert",
+    "arguments": {
+      "topic": "Canton domain node configuration"
+    }
+  }
+}
+```
+
+**curl equivalent:**
+
+```bash
+curl -s -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/call",
+    "params": {
+      "name": "find_expert",
+      "arguments": {
+        "topic": "Canton domain node configuration"
+      }
+    }
+  }'
+```
+
+## Supported MCP methods
+
+CCPEDIA implements the following MCP methods. Resources and prompts are not exposed — all Canton Network knowledge is surfaced through tools.
+
+| Method | Supported |
+|---|---|
+| `tools/list` | ✓ |
+| `tools/call` | ✓ |
+| `ping` | ✓ |
+| `resources/list` | — |
+| `prompts/list` | — |
+
+## stdio clients
+
+Some clients — including Claude Desktop and Zed — launch MCP servers as local stdio processes instead of connecting to an HTTP endpoint. Use the [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) bridge to adapt CCPEDIA's streamable HTTP transport to stdio.
+
+Run the bridge as the server command your client launches:
+
+```bash
+npx -y mcp-remote https://ccpedia.xyz/mcp
+```
+
+Your client config should invoke `npx` with the `-y` flag (to auto-install `mcp-remote`) and `https://ccpedia.xyz/mcp` as the final argument. Node 18 or newer is required. See the [Claude Desktop guide](/integrations/claude-desktop) and [Zed guide](/integrations/zed) for full working examples.
+
+## Rate limits
+
+CCPEDIA allows **60 calls per 15-minute window per IP address**. Exceeding the limit returns a `429` HTTP status with a `Retry-After` header indicating how many seconds to wait before retrying.
+
+If your integration requires higher throughput, you can self-host the CCPEDIA MCP server. The source is Apache 2.0 and available at [github.com/UnityNodes/ccpedia](https://github.com/UnityNodes/ccpedia).

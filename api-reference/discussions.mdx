@@ -1,0 +1,233 @@
+---
+title: "REST API: Discussion and Forum Endpoints"
+sidebarTitle: "Discussions"
+description: "Search and browse Canton Network forum threads, mailing-list messages, and GitHub discussions through a single unified REST API endpoint."
+---
+
+The discussions endpoints give you a single interface for querying community activity across all three surfaces CCPEDIA tracks: the CIP forum, the `cip-discuss` mailing list, and GitHub Discussions on Canton-related repositories. Use these endpoints to build search features, surface trending topics, or power notification systems that watch for new activity.
+
+---
+
+### GET /api/v1/discussions
+
+Search across all tracked discussion sources in a single request. Filter by keyword, source type, or both. Results are returned in reverse-chronological order by default.
+
+<ParamField query="q" type="string">
+  A keyword or phrase to search for across discussion titles and bodies. Leave
+  empty to return the most recent discussions regardless of content.
+</ParamField>
+
+<ParamField query="source" type="string">
+  Restrict results to a specific source type. Accepted values are `forum`,
+  `mailing`, and `github_discussions`. Omit this parameter to query all sources
+  at once.
+</ParamField>
+
+<ParamField query="limit" type="integer">
+  Maximum number of results to return. Defaults to `20`. The maximum accepted
+  value is `100`.
+</ParamField>
+
+**Response fields**
+
+<ResponseField name="results" type="array">
+  An array of discussion objects matching the query. May be empty if no results
+  are found.
+</ResponseField>
+
+<Expandable title="results item fields">
+
+<ResponseField name="id" type="string">
+  A unique identifier for the discussion record within CCPEDIA.
+</ResponseField>
+
+<ResponseField name="source" type="string">
+  The surface this discussion was indexed from: `"forum"`, `"mailing"`, or
+  `"github_discussions"`.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  The subject line or title of the discussion thread.
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  A direct link to the original discussion on its host platform.
+</ResponseField>
+
+<ResponseField name="author" type="string">
+  The display name or email address of the person who started the thread.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the discussion was first posted.
+</ResponseField>
+
+<ResponseField name="excerpt" type="string">
+  A short plain-text excerpt from the discussion body, useful for previews.
+</ResponseField>
+
+</Expandable>
+
+<ResponseField name="total" type="integer">
+  Total number of records matching the query, regardless of the `limit` applied.
+  Use this to paginate.
+</ResponseField>
+
+<CodeGroup>
+
+```bash curl — keyword search
+curl -s 'https://ccpedia.xyz/api/v1/discussions?q=topology&limit=5' | jq .
+```
+
+```json Response
+{
+  "results": [
+    {
+      "id": "disc-00841",
+      "source": "forum",
+      "title": "Network topology considerations for Canton validators",
+      "url": "https://lists.sync.global/g/cip-discuss/topic/841",
+      "author": "carol@example.com",
+      "created_at": "2024-12-01T10:15:00Z",
+      "excerpt": "When planning your validator topology, the key tradeoff is between..."
+    },
+    {
+      "id": "disc-00762",
+      "source": "mailing",
+      "title": "[cip-discuss] RE: topology and synchroniser placement",
+      "url": "https://lists.sync.global/g/cip-discuss/message/762",
+      "author": "dave@example.com",
+      "created_at": "2024-11-28T08:40:00Z",
+      "excerpt": "Following up on Carol's point — the topology question also affects..."
+    }
+  ],
+  "total": 2
+}
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```bash curl — filter by source
+curl -s 'https://ccpedia.xyz/api/v1/discussions?source=github_discussions&limit=3' | jq .
+```
+
+```json Response
+{
+  "results": [
+    {
+      "id": "disc-01023",
+      "source": "github_discussions",
+      "title": "Canton 3.x migration — breaking changes thread",
+      "url": "https://github.com/digital-asset/canton/discussions/1023",
+      "author": "eve",
+      "created_at": "2025-01-07T14:00:00Z",
+      "excerpt": "This thread collects all confirmed breaking changes in the 3.x series..."
+    }
+  ],
+  "total": 1
+}
+```
+
+</CodeGroup>
+
+---
+
+### GET /api/v1/github-discussions
+
+Fetch discussions from GitHub Discussions only, with the option to narrow results to a specific repository. Use this endpoint when you want raw access to GitHub-sourced content without mixing in forum or mailing-list results.
+
+<ParamField query="repo" type="string">
+  Filter results to a specific GitHub repository in `owner/repo` format, e.g.
+  `digital-asset/canton`. Omit to return GitHub discussions from all tracked
+  repositories.
+</ParamField>
+
+<ParamField query="limit" type="integer">
+  Maximum number of results to return. Defaults to `20`. The maximum accepted
+  value is `100`.
+</ParamField>
+
+**Response fields**
+
+The response shape is identical to the `results` array items in `GET /api/v1/discussions`, with `source` always set to `"github_discussions"` and an additional `repo` field.
+
+<ResponseField name="results" type="array">
+  An array of GitHub Discussion objects matching the query.
+</ResponseField>
+
+<Expandable title="results item fields">
+
+<ResponseField name="id" type="string">
+  CCPEDIA internal identifier for this record.
+</ResponseField>
+
+<ResponseField name="source" type="string">
+  Always `"github_discussions"` for this endpoint.
+</ResponseField>
+
+<ResponseField name="repo" type="string">
+  The `owner/repo` slug of the GitHub repository where this discussion lives.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Title of the GitHub Discussion.
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  Direct link to the discussion on GitHub.
+</ResponseField>
+
+<ResponseField name="author" type="string">
+  GitHub username of the discussion author.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the discussion was opened.
+</ResponseField>
+
+<ResponseField name="excerpt" type="string">
+  Short plain-text excerpt from the discussion body.
+</ResponseField>
+
+</Expandable>
+
+<CodeGroup>
+
+```bash curl
+curl -s 'https://ccpedia.xyz/api/v1/github-discussions?repo=digital-asset/canton&limit=3' | jq .
+```
+
+```json Response
+{
+  "results": [
+    {
+      "id": "disc-01023",
+      "source": "github_discussions",
+      "repo": "digital-asset/canton",
+      "title": "Canton 3.x migration — breaking changes thread",
+      "url": "https://github.com/digital-asset/canton/discussions/1023",
+      "author": "eve",
+      "created_at": "2025-01-07T14:00:00Z",
+      "excerpt": "This thread collects all confirmed breaking changes in the 3.x series..."
+    }
+  ],
+  "total": 1
+}
+```
+
+</CodeGroup>
+
+<Note>
+  CCPEDIA indexes GitHub Discussions from a curated list of Canton-related
+  repositories. To see which repositories are tracked, query
+  [`GET /api/v1/sources`](/api-reference/sources) and look for entries where
+  `type` is `"github_discussions"`.
+</Note>
+
+<Tip>
+  For the full schema — including pagination parameters and all optional response
+  fields — download the OpenAPI spec at
+  [`/api/v1/openapi.json`](https://ccpedia.xyz/api/v1/openapi.json).
+</Tip>

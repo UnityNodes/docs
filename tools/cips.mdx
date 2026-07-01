@@ -1,0 +1,341 @@
+---
+title: "CIP Tools — Canton Improvement Proposal Reference"
+sidebarTitle: "CIPs"
+description: "10 tools for Canton Improvement Proposals: lookup, status history, vote tallies, citation graphs, dependency chains, and governance comparisons."
+---
+
+Canton Improvement Proposals (CIPs) are the formal governance documents that define how the Canton Network protocol and ecosystem evolve. CCPEDIA gives you 10 dedicated tools to browse the full CIP registry, read individual proposals, trace their status history, inspect vote tallies, map citation graphs, walk dependency chains, and measure governance throughput over time. These tools are Canton/Daml/Splice ecosystem only — they are not connected to Cardano or any other chain's CIP scheme.
+
+---
+
+### `compare_governance_outcomes`
+
+Aggregate governance throughput over a window: CIPs that changed status (approved, rejected, or advanced), counts of `cip-vote` and `cip-discuss` mailing activity, and Dev Fund proposals merged or closed. Use this to summarise "what governance has shipped this quarter?" or to produce a periodic governance report.
+
+<Expandable title="Arguments">
+  <ParamField path="window_days" type="integer" required>
+    Window in days, between 7 and 365. For example, `90` returns the last quarter.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "compare_governance_outcomes",
+    "arguments": { "window_days": 90 }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"compare_governance_outcomes","arguments":{"window_days":90}}}'
+```
+</CodeGroup>
+
+---
+
+### `detect_cip_dependency_chain`
+
+Walk the CIP `requires:` graph from a starting CIP or PR draft. Returns the full chain of prerequisites that must reach `Final` before the starting proposal becomes implementable, with each prerequisite's current status. Accepts both approved CIPs (`"CIP-0112"`, `"0112"`) and dev-fund PR drafts (`"PR-203"`). Use this when planning around a CIP that hasn't shipped yet and you need to understand the full unblocking sequence.
+
+<Expandable title="Arguments">
+  <ParamField path="cip_id" type="string" required>
+    Starting CIP or PR id, e.g. `"0112"`, `"CIP-0112"`, or `"PR-203"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "detect_cip_dependency_chain",
+    "arguments": { "cip_id": "CIP-0112" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"detect_cip_dependency_chain","arguments":{"cip_id":"CIP-0112"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_cip`
+
+Fetch the full markdown body of a single Canton Improvement Proposal by its ID. Returns the title, status, author, and complete proposal text. Use this when you already know which CIP you need and want its full content. For browsing or filtering multiple CIPs use `list_cips`; for the status timeline use `get_cip_history`.
+
+<Expandable title="Arguments">
+  <ParamField path="id" type="string" required>
+    CIP ID in any of these forms: `"0001"`, `"CIP-0042"`, or `"PR-0117"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_cip",
+    "arguments": { "id": "CIP-0042" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_cip","arguments":{"id":"CIP-0042"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_cip_attachments`
+
+List file and PDF attachments linked to a single Canton Improvement Proposal. Returns supporting documents and signed-vote-record PDFs with filenames and URLs. Use this to find downloadable artifacts for a CIP. For the parsed who-voted-how breakdown use `get_cip_votes`; for the proposal text use `get_cip`.
+
+<Expandable title="Arguments">
+  <ParamField path="id" type="string" required>
+    CIP ID, e.g. `"0001"` or `"CIP-0042"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_cip_attachments",
+    "arguments": { "id": "CIP-0042" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_cip_attachments","arguments":{"id":"CIP-0042"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_cip_citations`
+
+Comprehensive citation graph for a Canton Improvement Proposal. Returns every place across CCPEDIA's corpus that references that CIP — per-source counts and samples for: sibling CIPs (declared `requires:` or content-mentions), individual forum posts, individual mailing-list messages (`cip-vote`, `cip-discuss`, `grants-discuss`, `validator-announce`), GitHub items (issues, PRs, and dev-fund proposals across all indexed Canton repos), blog posts, and YouTube videos with transcript matches.
+
+CCPEDIA's parsed `mailing_messages.cip_id` column gives per-message granularity unavailable elsewhere. Use this when you need impact analysis — "who is referencing CIP-X and where?" — before writing a dependent proposal or performing a governance audit.
+
+<Expandable title="Arguments">
+  <ParamField path="cip_id" type="string" required>
+    CIP id, e.g. `"CIP-0056"`, `"0056"`, or `"PR-0117"`. Padded and unpadded forms are both accepted.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_cip_citations",
+    "arguments": { "cip_id": "CIP-0056" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_cip_citations","arguments":{"cip_id":"CIP-0056"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_cip_history`
+
+Get the status-transition timeline of a single Canton Improvement Proposal — each dated from→to change, for example `Draft → Review → Final`. Use this for "how and when did CIP-X move through governance?" questions. This tool returns history only; for the proposal body use `get_cip`, for vote tallies use `get_cip_votes`.
+
+<Expandable title="Arguments">
+  <ParamField path="id" type="string" required>
+    CIP ID, e.g. `"0001"`, `"CIP-0042"`, or `"PR-0117"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_cip_history",
+    "arguments": { "id": "CIP-0042" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_cip_history","arguments":{"id":"CIP-0042"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_cip_implementation_status`
+
+For one CIP, report whether code or grants are tracking the proposal: linked dev-fund PRs, related ecosystem projects, and status transitions. Use this after `find_cip_for_feature` to gauge whether a proposal has moved from governance into actual implementation, and how far along that implementation is.
+
+<Expandable title="Arguments">
+  <ParamField path="cip_number" type="string" required>
+    CIP id, e.g. `"0112"` or `"CIP-0112"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_cip_implementation_status",
+    "arguments": { "cip_number": "CIP-0112" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_cip_implementation_status","arguments":{"cip_number":"CIP-0112"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_cip_mentions`
+
+Find every place that references a given Canton Improvement Proposal: forum threads, mailing-list posts, blog articles, Dev Fund grant proposals, and sibling CIPs that require or cite it. This is a reverse-reference (backlink) lookup. Use it for impact questions — "who is discussing CIP-X and where?" For the proposal's own text use `get_cip`; for vote records use `get_cip_votes`.
+
+<Expandable title="Arguments">
+  <ParamField path="id" type="string" required>
+    CIP ID, e.g. `"0001"`, `"CIP-0042"`, or `"PR-0117"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_cip_mentions",
+    "arguments": { "id": "CIP-0042" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_cip_mentions","arguments":{"id":"CIP-0042"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_cip_votes`
+
+Get the formal vote tally (in-favor, against, abstain — one entry per recorded vote) for a specific Canton Improvement Proposal, sourced from the Canton `cip-vote` mailing list. Use this for "who voted how" and approval-trail verification on Governance-type CIPs. For attachment PDFs use `get_cip_attachments`; for the status timeline use `get_cip_history`.
+
+<Expandable title="Arguments">
+  <ParamField path="cip_id" type="string" required>
+    CIP id, e.g. `"0117"`, `"0118"`, or `"CIP-0117"`. Numeric form is preferred.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_cip_votes",
+    "arguments": { "cip_id": "0117" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_cip_votes","arguments":{"cip_id":"0117"}}}'
+```
+</CodeGroup>
+
+---
+
+### `list_cips`
+
+Browse Canton Improvement Proposals, optionally filtered by status (`Draft`, `Review`, `Final`, `Withdrawn`, `Rejected`, `Superseded`) and type (e.g. `"Standards Track"`). Returns a metadata list — id, title, status, type, and author — not the full text. Use this to discover or enumerate CIPs when you don't have a specific ID; then call `get_cip` to read a particular one.
+
+<Expandable title="Arguments">
+  <ParamField path="status" type="string">
+    Status filter, e.g. `"Draft"`, `"Final"`, `"Review"`.
+  </ParamField>
+  <ParamField path="type" type="string">
+    Type filter, e.g. `"Standards Track"`.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "list_cips",
+    "arguments": { "status": "Review" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_cips","arguments":{"status":"Review"}}}'
+```
+</CodeGroup>
+
+---
+
+<Note>
+  Back to the full tool index: [MCP Tools Overview](/tools/overview)
+</Note>

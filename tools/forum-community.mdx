@@ -1,0 +1,146 @@
+---
+title: "Forum and Community Tools — Canton Developer Discussions"
+sidebarTitle: "Forum"
+description: "4 tools for the live Canton developer forum: read threads, track trending topics, monitor recent changes, and surface community consensus on any topic."
+---
+
+The Canton developer forum is the primary venue where builders, validators, and maintainers discuss the protocol in real time. CCPEDIA indexes the full forum and gives you 4 tools to read individual threads, see what's trending this week, get a chronological feed of recent changes across the ecosystem, and surface structured consensus signals on any topic.
+
+---
+
+### `community_consensus`
+
+Surface signals of what the Canton community thinks about a topic: forum thread reply ratios, mailing list debate volume, and the highest-rated reply on the most-viewed thread. This is not sentiment analysis — it is a structured roundup you can summarise and present. Use it when you need a quick read on community attitudes toward a proposal, feature, or architectural decision.
+
+<Expandable title="Arguments">
+  <ParamField path="topic" type="string" required>
+    Topic to assess, e.g. `"Canton token standard"`, `"validator onboarding process"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "community_consensus",
+    "arguments": { "topic": "Canton token standard" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"community_consensus","arguments":{"topic":"Canton token standard"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_discussion`
+
+Get a single thread from the official Canton Network community forum by its numeric topic id. Returns the title, category, view and post counts, and the first ~15 posts. Use this to read a specific thread in full once you have its id from search results or `get_trending`.
+
+<Tip>
+  This tool is for the **web forum**. For GitHub Discussions use `get_github_discussion`; for sync.global mailing-list threads use `get_mailing_thread`.
+</Tip>
+
+<Expandable title="Arguments">
+  <ParamField path="id" type="integer" required>
+    Forum topic ID, obtained from search results or `get_trending`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_discussion",
+    "arguments": { "id": 1042 }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_discussion","arguments":{"id":1042}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_recent_changes`
+
+Get a chronological, newest-first feed of recent Canton Network activity: CIP status changes, new grant proposals, new forum threads, blog posts, GitHub releases, and radar items — merged into one time-ordered stream (default: last 7 days). Use this for "what changed or happened on Canton recently?" questions. For popularity-ranked content use `get_trending` instead.
+
+<Expandable title="Arguments">
+  <ParamField path="days" type="integer">
+    Look-back window in days (default 7).
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_recent_changes",
+    "arguments": { "days": 14 }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_recent_changes","arguments":{"days":14}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_trending`
+
+Get this week's most popular and trending Canton Network content — CIPs, forum threads, docs, blog posts, and more — ranked by an engagement score. Use this for "what's hot on Canton right now?" questions. For a chronological feed of what actually changed, use `get_recent_changes` instead.
+
+<Expandable title="Arguments">
+  _No arguments. Call with `{}`._
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_trending",
+    "arguments": {}
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_trending","arguments":{}}}'
+```
+</CodeGroup>
+
+---
+
+<Note>
+  Back to the full tool index: [MCP Tools Overview](/tools/overview)
+</Note>

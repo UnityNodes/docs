@@ -1,0 +1,113 @@
+---
+title: "Canton Dev Fund: Overlap Detection and Proposal Self-Grading"
+sidebarTitle: "Dev Fund"
+description: "Two Dev Fund patterns to detect duplicate proposals before drafting and self-grade your draft against the ten-point approval checklist before submission."
+---
+
+The Canton Dev Fund receives a high volume of proposals, and two failure modes account for most rejections: submitting a proposal for work that is already in progress elsewhere in the ecosystem, and submitting a draft that lacks the milestone clarity or deliverable specificity that reviewers require. Both failure modes are avoidable with a small amount of pre-submission due diligence. These two patterns give you the tools to catch both problems before you invest significant drafting effort.
+
+<Tip>
+  Run `detect_builder_overlap` and `proposal_success_predictor` through the CCPEDIA MCP server before finalizing any Dev Fund submission. Together they take under five minutes and can save weeks of back-and-forth with reviewers.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Confirm nobody is already building it">
+    **Problem**
+
+    The Dev Fund inbox routinely receives near-duplicate proposals for LocalNet tooling, validator runbooks, wallet abstractions, and other high-demand categories. Reviewers reject duplicates even when the individual proposals are well-written, because funding the same work twice wastes resources. The problem is that the overlap isn't always obvious — a proposal may be nearly identical to one that was submitted six months ago under a different title.
+
+    **Solution**
+
+    Run `detect_builder_overlap({ idea: "..." })` before drafting your proposal. The tool scores your idea against all 410+ submitted Dev Fund proposals AND 458 ecosystem projects, and returns matches ranked by similarity score.
+
+    ```bash
+    # Example MCP call
+    detect_builder_overlap({
+      idea: "A LocalNet tooling package that simplifies Canton devnet setup for new developers"
+    })
+    # Returns: [{ title: "Canton LocalNet Bootstrap Kit", score: 0.87, status: "funded", ... }]
+    ```
+
+    **How to interpret the results**
+
+    | Score range | Meaning |
+    |---|---|
+    | 0.85 – 1.0 | Very high overlap — this work may already be funded or in progress |
+    | 0.65 – 0.85 | Significant overlap — differentiate your approach explicitly in the proposal |
+    | 0.40 – 0.65 | Moderate overlap — reference the similar work and explain the gap you fill |
+    | Below 0.40 | Low overlap — proceed, but check whether the similar projects are related |
+
+    When you find high-overlap results, investigate the matched proposal or project. If the work is unfunded and stalled, you may be able to take it over. If it is actively funded, look for an adjacent gap rather than competing.
+
+    **When to use this pattern**
+
+    - Before writing more than a paragraph of your proposal
+    - When expanding an existing project into a new capability area
+    - When responding to a community call for a specific type of tooling
+
+    **References**
+    - [CCPEDIA MCP tool: detect_builder_overlap](/tools/dev-fund)
+  </Accordion>
+
+  <Accordion title="Self-grade a Dev Fund proposal draft">
+    **Problem**
+
+    Dev Fund approval depends on milestone clarity, named deliverables, scope realism, and several other criteria that are easy to overlook in a first draft. Submitting a proposal that fails on multiple points generates reviewer feedback cycles that can delay funding by weeks. Most of the common gaps are mechanical — missing a milestone table, omitting source references, not specifying an Apache 2.0 licence — and entirely avoidable with a pre-submission checklist.
+
+    **Solution**
+
+    Run `proposal_success_predictor({ draft_text: "..." })` with your draft text before submitting. The tool walks your draft against a ten-point checklist and returns a score from 0 to 100.
+
+    ```bash
+    # Example MCP call
+    proposal_success_predictor({
+      draft_text: "## Summary\n\nWe propose to build a Canton validator monitoring dashboard...\n\n## Milestones\n..."
+    })
+    # Returns: { score: 72, passed: [...], failed: [...], suggestions: [...] }
+    ```
+
+    **The ten-point checklist**
+
+    | Criterion | What reviewers look for |
+    |---|---|
+    | Milestones | Named milestones with completion criteria, not just a timeline |
+    | Deliverables | Specific artefacts: code, docs, tests — not vague outcomes |
+    | Sources | References to Canton docs, CIPs, or prior art that ground the proposal |
+    | Length | Sufficient detail to evaluate scope without padding |
+    | Licence | Explicit Apache 2.0 commitment for all produced code |
+    | Scope realism | Milestones achievable in the proposed time and budget |
+    | Problem statement | Clear articulation of the problem being solved |
+    | Success criteria | Measurable definition of done for each milestone |
+    | Prior art | Acknowledgement of existing related work |
+    | Team credentials | Relevant experience or prior Canton contributions |
+
+    Aim for a score of 80 or above before submitting. The tool returns specific suggestions for each failed criterion, so improving your score is straightforward.
+
+    **Practical workflow**
+
+    <Steps>
+      <Step title="Write your first draft">
+        Don't self-censor on the first pass — write everything you want to say.
+      </Step>
+      <Step title="Run the overlap check">
+        Call `detect_builder_overlap` to confirm your idea occupies a genuine gap.
+      </Step>
+      <Step title="Run the success predictor">
+        Call `proposal_success_predictor` and note the failed criteria.
+      </Step>
+      <Step title="Revise to address failures">
+        Work through the tool's suggestions, focusing on milestones and deliverables first.
+      </Step>
+      <Step title="Re-run until ≥80%">
+        Iterate until your score reaches 80 or above, then submit.
+      </Step>
+    </Steps>
+
+    **References**
+    - [CCPEDIA MCP tool: proposal_success_predictor](/tools/dev-fund)
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  The Dev Fund's `grants-discuss` mailing list is where the community debates proposal ideas before formal submission. Use `search_mailing_list({ query: "your idea keywords", group: "grants-discuss" })` via CCPEDIA to find prior discussion on similar ideas and to gauge community appetite before you invest in a full proposal.
+</Note>

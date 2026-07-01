@@ -1,0 +1,158 @@
+---
+title: "Code and Error Tools — Diagnose Canton Stack Issues"
+sidebarTitle: "Code & Errors"
+description: "4 tools to diagnose Canton errors, compare breaking changes across SDK versions, check individual GitHub issues, and fingerprint recurring ecosystem-wide bugs."
+---
+
+When something breaks in your Canton or Daml stack, CCPEDIA's 4 code and error tools give you a structured path from raw error output to resolved fix. You can paste an error message or stack trace to get matched forum threads and GitHub issues, compare two SDK versions to see what breaks between them, look up the current state of a specific issue or PR, and identify structural bugs that recur across the ecosystem month after month.
+
+---
+
+### `diagnose_error`
+
+Paste a Canton, Daml, or Splice error message or stack trace fragment and get the most likely resolved fixes from CCPEDIA's historical corpus: forum threads where the same error was discussed, related GitHub issues, and the SDK version range the error appeared in. Best results come from input that contains a distinctive error code (such as `TOPOLOGY_TOO_MANY_PENDING_TOPOLOGY_TRANSACTIONS`, `UNAVAILABLE`, or `ValidatorLicense`) or a verbatim exception class. Returns the top 3 matches each from forum posts and GitHub items.
+
+<Expandable title="Arguments">
+  <ParamField path="error_text" type="string" required>
+    Error message, stack trace, or status code. Longer and more distinctive text returns better matches.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max matches per source (default 3).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "diagnose_error",
+    "arguments": {
+      "error_text": "TOPOLOGY_TOO_MANY_PENDING_TOPOLOGY_TRANSACTIONS"
+    }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"diagnose_error","arguments":{"error_text":"TOPOLOGY_TOO_MANY_PENDING_TOPOLOGY_TRANSACTIONS"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_breaking_changes`
+
+Compare two Canton, Daml, or Splice SDK versions and return the list of changes between them: release notes from `github_releases` plus any forum and GitHub reports near the release window. Use this when you are planning an upgrade and need to know "what breaks moving from X to Y?". Pass version strings as they appear in GitHub release tags, with or without a leading `v`.
+
+<Expandable title="Arguments">
+  <ParamField path="from_sdk" type="string" required>
+    Origin version, e.g. `"0.5.0"` or `"v3.4.0"`.
+  </ParamField>
+  <ParamField path="to_sdk" type="string" required>
+    Target version, e.g. `"0.6.10"` or `"v3.5.6"`.
+  </ParamField>
+  <ParamField path="repo" type="string">
+    Optional repo hint: `"canton"`, `"splice"` (alias for decentralized-canton-sync), `"daml"`, or a full `owner/name`. Auto-inferred from the version shape when omitted.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_breaking_changes",
+    "arguments": { "from_sdk": "v3.4.0", "to_sdk": "v3.5.6", "repo": "canton" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_breaking_changes","arguments":{"from_sdk":"v3.4.0","to_sdk":"v3.5.6","repo":"canton"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_issue_status`
+
+Look up one GitHub issue or PR by repository and issue number. Returns its current state, title, labels, and body. Scoped to Canton, Daml, and Splice repositories only.
+
+<Expandable title="Arguments">
+  <ParamField path="repo" type="string" required>
+    Repository, e.g. `"canton-foundation/canton-dev-fund"` or shorthand `"canton-dev-fund"`.
+  </ParamField>
+  <ParamField path="number" type="integer" required>
+    Issue or PR number.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_issue_status",
+    "arguments": { "repo": "canton-foundation/canton-dev-fund", "number": 42 }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_issue_status","arguments":{"repo":"canton-foundation/canton-dev-fund","number":42}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_recurring_issue_fingerprint`
+
+Identify error patterns that recur across multiple Canton SDK or Splice release windows — structural bugs the ecosystem keeps hitting versus one-off regressions. Returns the top keywords and error codes mentioned in forum posts that span at least 3 distinct months over the last 18 months. Use this for triage prioritisation and for deciding what to add to a runbook.
+
+<Expandable title="Arguments">
+  <ParamField path="window_months" type="integer">
+    Look-back window in months (default 18).
+  </ParamField>
+  <ParamField path="min_months" type="integer">
+    A keyword must appear in this many distinct months to count as recurring (default 3).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_recurring_issue_fingerprint",
+    "arguments": { "window_months": 18, "min_months": 3 }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_recurring_issue_fingerprint","arguments":{"window_months":18,"min_months":3}}}'
+```
+</CodeGroup>
+
+---
+
+<Note>
+  Back to the full tool index: [MCP Tools Overview](/tools/overview)
+</Note>

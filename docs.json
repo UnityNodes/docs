@@ -1,38 +1,14 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "theme": "luma",
+  "name": "CCPEDIA",
+  "description": "Canton Network knowledge platform. 78 MCP tools, 25 live data sources, 20 design patterns.",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#00ff88",
+    "light": "#3df0a3",
+    "dark": "#00cc6f"
   },
   "favicon": "/favicon.svg",
-  "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
@@ -40,33 +16,150 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "ccpedia.xyz",
+        "href": "https://ccpedia.xyz"
+      },
+      {
+        "label": "Ask Cippy",
+        "href": "https://ccpedia.xyz/ask"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "Get Started",
+      "href": "/quickstart"
     }
   },
-  "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "what-is-mcp"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/overview",
+              "integrations/claude-desktop",
+              "integrations/cursor",
+              "integrations/windsurf",
+              "integrations/claude-code",
+              "integrations/zed",
+              "integrations/generic"
+            ]
+          },
+          {
+            "group": "Design Patterns",
+            "pages": [
+              "patterns/overview",
+              "patterns/ledger-fundamentals",
+              "patterns/tooling",
+              "patterns/versioning",
+              "patterns/debugging",
+              "patterns/token-standard",
+              "patterns/governance",
+              "patterns/sv-operations",
+              "patterns/dev-fund",
+              "patterns/community",
+              "patterns/daml",
+              "patterns/public-goods"
+            ]
+          },
+          {
+            "group": "Platform",
+            "pages": [
+              "operations/data-sources",
+              "operations/status",
+              "operations/metrics"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "MCP Tools",
+        "groups": [
+          {
+            "group": "Tool Reference",
+            "pages": [
+              "tools/overview",
+              "tools/search",
+              "tools/cips",
+              "tools/forum-community",
+              "tools/code-errors",
+              "tools/releases-sdks",
+              "tools/featured-apps-sv",
+              "tools/dev-fund",
+              "tools/onboarding-drift",
+              "tools/talks-docs-mail",
+              "tools/ecosystem"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "REST API v1",
+            "pages": [
+              "api-reference/introduction",
+              "api-reference/cips",
+              "api-reference/discussions",
+              "api-reference/sources"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Live MCP Endpoint",
+          "href": "https://ccpedia.xyz/mcp",
+          "icon": "plug"
+        },
+        {
+          "anchor": "Status",
+          "href": "https://ccpedia.xyz/status",
+          "icon": "heart-pulse"
+        },
+        {
+          "anchor": "Open Source",
+          "href": "https://github.com/UnityNodes/ccpedia",
+          "icon": "github"
+        }
+      ]
+    }
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+      "github": "https://github.com/UnityNodes/ccpedia",
+      "x": "https://x.com/unitynodes"
+    },
+    "links": [
+      {
+        "header": "Product",
+        "items": [
+          { "label": "Documentation", "href": "/" },
+          { "label": "MCP Tools", "href": "/tools/overview" },
+          { "label": "API Reference", "href": "/api-reference/introduction" }
+        ]
+      },
+      {
+        "header": "Resources",
+        "items": [
+          { "label": "Status", "href": "https://ccpedia.xyz/status" },
+          { "label": "Metrics", "href": "https://ccpedia.xyz/metrics" },
+          { "label": "Main Site", "href": "https://ccpedia.xyz" }
+        ]
+      }
+    ]
   }
 }

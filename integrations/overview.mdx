@@ -1,0 +1,52 @@
+---
+title: "Connect CCPEDIA to Your AI Coding Assistant"
+sidebarTitle: "Overview"
+description: "Connect CCPEDIA's Canton Network knowledge base to any MCP-compatible AI client — no auth, one config block."
+---
+
+CCPEDIA exposes a single MCP endpoint at `https://ccpedia.xyz/mcp`. Any AI client that speaks the Model Context Protocol can connect to it — no API key, no account setup, no installation beyond a config file edit. Pick your client below and follow the guide for the exact snippet you need.
+
+<CardGroup cols={2}>
+  <Card title="Claude Desktop" icon="desktop" href="/integrations/claude-desktop">
+    Add CCPEDIA to Anthropic's macOS and Windows desktop app via the mcp-remote bridge.
+  </Card>
+  <Card title="Cursor" icon="code" href="/integrations/cursor">
+    Wire CCPEDIA into Cursor IDE using native streamable HTTP — no bridge required.
+  </Card>
+  <Card title="Windsurf" icon="wind" href="/integrations/windsurf">
+    Configure CCPEDIA in Codeium's Windsurf AI IDE with a single JSON block.
+  </Card>
+  <Card title="Claude Code" icon="terminal" href="/integrations/claude-code">
+    Register CCPEDIA in Anthropic's Claude Code CLI with one shell command.
+  </Card>
+  <Card title="Zed" icon="bolt" href="/integrations/zed">
+    Connect CCPEDIA to Zed's context server config for in-editor Canton knowledge.
+  </Card>
+  <Card title="Any MCP Client" icon="globe" href="/integrations/generic">
+    Connect any JSON-RPC 2.0 over streamable HTTP client directly to CCPEDIA.
+  </Card>
+</CardGroup>
+
+## Notes for all clients
+
+Keep these points in mind regardless of which client you use.
+
+**Rate limit.** CCPEDIA allows 60 calls per 15-minute window per IP address. Exceeding the limit returns a `429` response with a `Retry-After` header. If you need higher throughput, the source is Apache 2.0 and you can self-host.
+
+**Transport details.** The endpoint speaks JSON-RPC 2.0 over streamable HTTP.
+
+| Property | Value |
+|---|---|
+| URL | `https://ccpedia.xyz/mcp` |
+| Method | `POST` |
+| Content-Type | `application/json` |
+| Accept | `application/json, text/event-stream` |
+| Auth | None |
+
+**Older stdio clients.** Some clients — including Claude Desktop and Zed — expect a stdio process rather than an HTTP endpoint. Use the [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) bridge to translate between them. Each client guide below shows the exact command. You need Node 18 or newer for npx to resolve the package automatically.
+
+```bash
+npx -y mcp-remote https://ccpedia.xyz/mcp
+```
+
+**Guided setup wizard.** If you prefer a browser-based walkthrough, the wizard at [ccpedia.xyz/for-ai](https://ccpedia.xyz/for-ai) auto-detects your client and pings the server live to confirm connectivity before you switch to your IDE.

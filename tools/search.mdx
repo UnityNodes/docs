@@ -1,0 +1,609 @@
+---
+title: "Search Tools — Full-Text and Semantic Search for Canton"
+sidebarTitle: "Search"
+description: "17 tools for full-text and semantic search across every Canton source: forum, GitHub, docs, CIPs, mailing lists, videos, blog, and whitepapers."
+---
+
+CCPEDIA's search category gives you 17 tools that reach across every Canton source in the knowledge base — the developer forum, GitHub issues, official documentation, CIPs, governance mailing lists, YouTube transcripts, blog posts, whitepapers, and the ecosystem project registry. Use the narrow, specialised tools when you know exactly what type of content you want; use `full_context` or `semantic_search` when you want an exhaustive cross-source roundup.
+
+---
+
+### `find_apps_by_pattern`
+
+Pattern-search the Featured Apps catalogue by free-text query across name, category, and description. Results are ranked by name and category match first, falling back to description relevance. Use this to discover what apps are live on Canton matching a particular keyword or domain.
+
+<Expandable title="Arguments">
+  <ParamField path="pattern" type="string" required>
+    Free text, e.g. `"AMM"`, `"wallet"`, `"DeFi vault"`, `"validator"`.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned (default 10).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "find_apps_by_pattern",
+    "arguments": { "pattern": "wallet" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"find_apps_by_pattern","arguments":{"pattern":"wallet"}}}'
+```
+</CodeGroup>
+
+---
+
+### `find_cip_for_feature`
+
+Given a Canton feature or capability description, find the matching CIP(s) by searching titles and bodies. Use this to answer "is there a CIP for X?" before starting to write your own proposal or when you want to understand how a feature was specified at the governance level.
+
+<Expandable title="Arguments">
+  <ParamField path="feature" type="string" required>
+    Feature description, e.g. `"wallet abstraction"`, `"token standard"`, `"validator staking"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "find_cip_for_feature",
+    "arguments": { "feature": "token standard" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"find_cip_for_feature","arguments":{"feature":"token standard"}}}'
+```
+</CodeGroup>
+
+---
+
+### `find_code_examples`
+
+Find Canton/Daml code snippets in forum posts on a topic. The tool filters forum posts whose rendered HTML contains `<pre>` or `<code>` blocks and matches your topic keyword. Use this when you want to see real-world code patterns posted by the community rather than official documentation examples.
+
+<Expandable title="Arguments">
+  <ParamField path="topic" type="string" required>
+    Topic keyword, e.g. `"choice"`, `"interface"`, `"template"`.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned (default 5).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "find_code_examples",
+    "arguments": { "topic": "interface" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"find_code_examples","arguments":{"topic":"interface"}}}'
+```
+</CodeGroup>
+
+---
+
+### `find_collaboration_opportunities`
+
+Given one Canton ecosystem project, find others with complementary tags or categories that could plug in alongside it. The matching uses a heuristic overlap of tags plus adjacent category relationships. Use this before scoping a new integration or partnership to see what already exists.
+
+<Expandable title="Arguments">
+  <ParamField path="project" type="string" required>
+    Project name or slug to look around, e.g. `"canton-wallet"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "find_collaboration_opportunities",
+    "arguments": { "project": "canton-wallet" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"find_collaboration_opportunities","arguments":{"project":"canton-wallet"}}}'
+```
+</CodeGroup>
+
+---
+
+### `find_expert`
+
+Rank likely Canton experts on a topic across CCPEDIA by combining forum activity that matches the topic with the overall forum and GitHub volume of each author. Use this when you want to know who to tag in a thread or whose posts to read first on a specific subject.
+
+<Expandable title="Arguments">
+  <ParamField path="topic" type="string" required>
+    Topic or domain to find experts for, e.g. `"topology"`, `"party management"`.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max authors returned (default 5).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "find_expert",
+    "arguments": { "topic": "topology" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"find_expert","arguments":{"topic":"topology"}}}'
+```
+</CodeGroup>
+
+---
+
+### `find_known_issues`
+
+Surface known unresolved problems related to a free-text description. The tool pulls from forum threads with zero replies but high views, plus open GitHub issues. Use this to check "is anyone else hitting this?" before posting a new question — it prevents duplicate threads and often surfaces workarounds faster.
+
+<Expandable title="Arguments">
+  <ParamField path="description" type="string" required>
+    What you're seeing — short prose, not a stack trace (for stack traces use `diagnose_error`).
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows per source (default 5).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "find_known_issues",
+    "arguments": { "description": "validator license not found after upgrade" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"find_known_issues","arguments":{"description":"validator license not found after upgrade"}}}'
+```
+</CodeGroup>
+
+---
+
+### `find_maintainer_guidance`
+
+Surface forum and mailing posts authored by top-volume Canton contributors (likely maintainers) on a topic. Use this when you want to weight expert voices over the general forum noise — particularly useful for architectural or protocol-level questions where maintainer intent matters.
+
+<Expandable title="Arguments">
+  <ParamField path="topic" type="string" required>
+    Topic keyword, e.g. `"topology"`, `"wallet"`, `"DAR upload"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "find_maintainer_guidance",
+    "arguments": { "topic": "DAR upload" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"find_maintainer_guidance","arguments":{"topic":"DAR upload"}}}'
+```
+</CodeGroup>
+
+---
+
+### `find_security_patches`
+
+Surface release notes likely to contain security or CVE fixes. The tool uses a heuristic that matches release bodies containing the keywords `security`, `CVE`, `vulnerability`, or `patch`. Use this when you need to audit whether a version range includes any known security remediations.
+
+<Expandable title="Arguments">
+  <ParamField path="limit" type="integer">
+    Max rows returned (default 10).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "find_security_patches",
+    "arguments": {}
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"find_security_patches","arguments":{}}}'
+```
+</CodeGroup>
+
+---
+
+### `find_similar_projects`
+
+Find Canton ecosystem projects most similar to a free-text description by matching across title, category, description, and tags. Use this before proposing a new project to check for overlap, and before building to understand what the ecosystem already provides in adjacent areas.
+
+<Expandable title="Arguments">
+  <ParamField path="description" type="string" required>
+    Project description or idea, e.g. `"a DeFi AMM built on Canton"`.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned (default 10).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "find_similar_projects",
+    "arguments": { "description": "a DeFi AMM built on Canton" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"find_similar_projects","arguments":{"description":"a DeFi AMM built on Canton"}}}'
+```
+</CodeGroup>
+
+---
+
+### `full_context`
+
+Single semantic query across CCPEDIA's entire corpus at once: docs, CIPs, forum, mailing lists, GitHub items, blog, videos, whitepapers, and ecosystem projects. Use this for an exhaustive cross-source roundup on a topic. For narrower lookups, prefer the specialised tools to reduce noise and cost.
+
+<Expandable title="Arguments">
+  <ParamField path="topic" type="string" required>
+    Topic or question, e.g. `"Canton privacy model"`.
+  </ParamField>
+  <ParamField path="limit_per_source" type="integer">
+    Max rows per source (default 3).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "full_context",
+    "arguments": { "topic": "Canton privacy model" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"full_context","arguments":{"topic":"Canton privacy model"}}}'
+```
+</CodeGroup>
+
+---
+
+### `search`
+
+Keyword and full-text search over the Canton Network knowledge base — CIPs, Canton/Daml/Splice docs, forum, mailing lists, whitepapers, grant proposals, blog, YouTube, and GitHub. Use this for exact-term or name lookups. For conceptual or "how does X work" questions use `semantic_search` instead. Once you have a doc id from results, call `get_doc` to read the full page.
+
+<Tip>Do not use this tool for other blockchains, the general web, or local files. It is scoped strictly to Canton-ecosystem content.</Tip>
+
+<Expandable title="Arguments">
+  <ParamField path="query" type="string" required>
+    Search query — an exact term, error code, function name, or phrase.
+  </ParamField>
+  <ParamField path="type" type="string">
+    Optional content-type filter.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "search",
+    "arguments": { "query": "TOPOLOGY_TOO_MANY_PENDING_TOPOLOGY_TRANSACTIONS" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search","arguments":{"query":"TOPOLOGY_TOO_MANY_PENDING_TOPOLOGY_TRANSACTIONS"}}}'
+```
+</CodeGroup>
+
+---
+
+### `search_community`
+
+One-call semantic-style search across CCPEDIA's community sources at once: forum, mailing lists, blog, and GitHub discussions. Use this when you want to scan everything written by humans (not docs or code) for a topic — good for gauging sentiment, finding opinions, or reading debate threads.
+
+<Expandable title="Arguments">
+  <ParamField path="query" type="string" required>
+    Free-text query, e.g. `"Canton wallet UX"`.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max hits per source (default 5).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "search_community",
+    "arguments": { "query": "Canton wallet UX" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search_community","arguments":{"query":"Canton wallet UX"}}}'
+```
+</CodeGroup>
+
+---
+
+### `search_github_issues`
+
+Full-text search across CCPEDIA's indexed GitHub issues from 15+ Canton repositories. Use this to find prior reports, open bugs, or requested features. For PRs, use `search` (broader) or `list_proposals` for dev-fund PRs specifically.
+
+<Expandable title="Arguments">
+  <ParamField path="query" type="string" required>
+    Free-text query, e.g. `"sequencer connection refused"`.
+  </ParamField>
+  <ParamField path="state" type="string">
+    Issue state filter — `"open"`, `"closed"`, or `"all"` (default: all).
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned (default 10).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "search_github_issues",
+    "arguments": { "query": "sequencer connection refused", "state": "open" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search_github_issues","arguments":{"query":"sequencer connection refused","state":"open"}}}'
+```
+</CodeGroup>
+
+---
+
+### `search_mailing_list`
+
+Search across CCPEDIA's indexed Canton mailing-list archives — `cip-discuss`, `cip-vote`, `grants-discuss`, `validator-announce`, and more. Use this to find governance discussions, vote threads, or announcements that live in email rather than the forum.
+
+<Expandable title="Arguments">
+  <ParamField path="query" type="string" required>
+    Free-text query that appears in the subject or body.
+  </ParamField>
+  <ParamField path="group" type="string">
+    Optional group slug filter, e.g. `"cip-discuss"`, `"validator-announce"`.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned (default 10).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "search_mailing_list",
+    "arguments": { "query": "CIP-0117 vote", "group": "cip-vote" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search_mailing_list","arguments":{"query":"CIP-0117 vote","group":"cip-vote"}}}'
+```
+</CodeGroup>
+
+---
+
+### `search_release_notes`
+
+Search across release-note bodies of all indexed Canton repositories for a feature or keyword. Use this to find which release first mentioned a capability, or to trace when a specific fix landed across the Canton, Splice, and Daml repos.
+
+<Expandable title="Arguments">
+  <ParamField path="feature" type="string" required>
+    Feature keyword, e.g. `"logical synchronizer"`, `"topology"`, `"wallet kernel"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "search_release_notes",
+    "arguments": { "feature": "logical synchronizer" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search_release_notes","arguments":{"feature":"logical synchronizer"}}}'
+```
+</CodeGroup>
+
+---
+
+### `search_talks`
+
+Search CCPEDIA's indexed Canton talks and videos (YouTube transcripts). Results match across title and transcript text with a short snippet around each hit. Use this to find video content covering a specific topic — particularly useful for conference talks and explainer sessions.
+
+<Expandable title="Arguments">
+  <ParamField path="query" type="string" required>
+    Free-text query that appears in the title or transcript.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned (default 5).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "search_talks",
+    "arguments": { "query": "Canton privacy subnetworks" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search_talks","arguments":{"query":"Canton privacy subnetworks"}}}'
+```
+</CodeGroup>
+
+---
+
+### `semantic_search`
+
+Conceptual and meaning-based search over the Canton Network corpus — CIPs, docs, forum, mailing lists, proposals, blog, releases, ecosystem, foundation KB, and YouTube transcripts — using vector plus full-text hybrid retrieval with reranking. Use this for open-ended "how/why/what is" questions or when keyword search returns nothing useful. After getting results, call `get_doc` with a returned id to read the full source page.
+
+<Tip>Do not use this tool for other chains or the general web. For exact-term lookups, `search` is faster and more precise.</Tip>
+
+<Expandable title="Arguments">
+  <ParamField path="query" type="string" required>
+    Free-form question or phrase, e.g. `"how does Canton handle privacy between counterparties?"`.
+  </ParamField>
+  <ParamField path="source_types" type="array">
+    Restrict results to specific source types. Omit to search all sources.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "semantic_search",
+    "arguments": { "query": "how does Canton handle privacy between counterparties?" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"semantic_search","arguments":{"query":"how does Canton handle privacy between counterparties?"}}}'
+```
+</CodeGroup>
+
+---
+
+<Note>
+  Back to the full tool index: [MCP Tools Overview](/tools/overview)
+</Note>

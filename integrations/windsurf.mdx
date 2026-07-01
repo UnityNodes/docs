@@ -1,0 +1,81 @@
+---
+title: "Add CCPEDIA to Windsurf IDE"
+sidebarTitle: "Windsurf"
+description: "Wire CCPEDIA into Codeium's Windsurf AI IDE as a streamable HTTP MCP server using a single JSON config block."
+---
+
+Windsurf, Codeium's AI-native IDE, supports MCP servers through a dedicated config file. CCPEDIA connects via streamable HTTP natively — no bridge process required. Edit one file, restart Windsurf, and the full Canton Network knowledge base is available inside the Cascade AI panel.
+
+<Steps>
+  <Step title="Open mcp_config.json">
+    Locate or create the Windsurf MCP configuration file at the following path:
+
+    ```text
+    ~/.codeium/windsurf/mcp_config.json
+    ```
+
+    If the file does not exist, create it now. The directory should already be present after any Windsurf launch.
+  </Step>
+  <Step title="Add the CCPEDIA server block">
+    Paste the following configuration into `mcp_config.json`. If you already have other servers in the file, add `ccpedia` as a sibling key inside the existing `mcpServers` object.
+
+    ```json
+    {
+      "mcpServers": {
+        "ccpedia": {
+          "serverUrl": "https://ccpedia.xyz/mcp"
+        }
+      }
+    }
+    ```
+
+    <Warning>
+      Windsurf uses the field name `serverUrl`, **not** `url`. Using `url` (which is the correct key for Cursor) is the most common config mistake when switching between the two IDEs. Double-check the field name before saving.
+    </Warning>
+
+    <Note>
+      Windsurf supports streamable HTTP natively. No `mcp-remote` bridge is needed.
+    </Note>
+  </Step>
+  <Step title="Restart Windsurf">
+    Quit Windsurf completely and reopen it. MCP servers are registered at startup, so a full restart is required for the change to take effect. After relaunch, CCPEDIA tools will appear in the Cascade panel.
+  </Step>
+  <Step title="Try it">
+    Open the Cascade AI panel and ask: *"What Canton participant node types are available?"* Windsurf should invoke a CCPEDIA tool and return a structured answer from the Canton Network knowledge base.
+  </Step>
+</Steps>
+
+## Verification
+
+Before restarting Windsurf, confirm the endpoint is reachable from your machine:
+
+```bash
+curl -s -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | head -c 200
+```
+
+You should receive a JSON response starting with `{"jsonrpc":"2.0"` and a list of available tools.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Tools don't appear after restarting">
+    Verify the config file contains valid JSON and uses `serverUrl` (not `url`). You can validate the file from a terminal:
+
+    ```bash
+    cat ~/.codeium/windsurf/mcp_config.json | python3 -m json.tool
+    ```
+
+    If the command prints the JSON cleanly, the file is valid. If it errors, fix the syntax and restart Windsurf again.
+  </Accordion>
+  <Accordion title="Cascade shows a connection error for CCPEDIA">
+    Run the verification curl command above. If the endpoint is unreachable, check your network connection or any corporate proxy that might be blocking outbound HTTPS to `ccpedia.xyz`. If the endpoint responds normally, try removing the CCPEDIA entry from `mcp_config.json`, saving, restarting Windsurf, and re-adding it.
+  </Accordion>
+  <Accordion title="Rate-limit errors">
+    CCPEDIA allows 60 calls per 15-minute window per IP. If you exceed this limit you will see a `429` error returned from the tool call. Wait 15 minutes for the window to reset. For higher throughput, self-host the server — source is Apache 2.0 at [github.com/UnityNodes/ccpedia](https://github.com/UnityNodes/ccpedia).
+  </Accordion>
+</AccordionGroup>
+
+[Windsurf MCP documentation ↗](https://docs.codeium.com/windsurf/mcp)

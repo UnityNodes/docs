@@ -1,0 +1,96 @@
+---
+title: "Add CCPEDIA to Claude Desktop"
+sidebarTitle: "Claude Desktop"
+description: "Configure CCPEDIA as an MCP server in Claude Desktop on macOS or Windows using the mcp-remote stdio bridge."
+---
+
+Claude Desktop reads MCP server definitions from a single JSON config file. Adding CCPEDIA takes about two minutes: you edit the config, restart the app, and Canton Network knowledge becomes available in every conversation. Because Claude Desktop expects a stdio process, you use the `mcp-remote` bridge to forward calls to CCPEDIA's streamable HTTP endpoint — no extra installation needed beyond Node 18.
+
+<Steps>
+  <Step title="Open the config file">
+    Locate or create the Claude Desktop MCP configuration file for your operating system.
+
+    **macOS:**
+    ```text
+    ~/Library/Application Support/Claude/claude_desktop_config.json
+    ```
+
+    **Windows:**
+    ```text
+    %APPDATA%\Claude\claude_desktop_config.json
+    ```
+
+    If the file does not exist yet, create it as an empty JSON object (`{}`).
+  </Step>
+  <Step title="Add the CCPEDIA server block">
+    Merge the following `mcpServers` entry into your config. If you already have other servers listed, add `ccpedia` as a sibling key inside the existing `mcpServers` object.
+
+    ```json
+    {
+      "mcpServers": {
+        "ccpedia": {
+          "command": "npx",
+          "args": ["-y", "mcp-remote", "https://ccpedia.xyz/mcp"]
+        }
+      }
+    }
+    ```
+
+    <Note>
+      **Why `mcp-remote`?** Claude Desktop launches MCP servers as local stdio processes. CCPEDIA serves the Model Context Protocol over streamable HTTP. The [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) bridge spawns a tiny local process that proxies stdio to the remote endpoint — no other setup is required.
+    </Note>
+  </Step>
+  <Step title="Restart Claude Desktop">
+    Quit Claude Desktop fully — on macOS press **Cmd+Q** (closing the window is not enough), then reopen the app. On Windows, right-click the system-tray icon and choose **Quit**. CCPEDIA tools will appear in the tools picker on the next launch.
+  </Step>
+  <Step title="Try it">
+    Start a new conversation and ask: *"What's the current Canton SDK version?"*
+
+    Claude should invoke the `get_current_versions` tool and reply with live data from CCPEDIA. If you see the tool call appear in the response, the integration is working correctly.
+  </Step>
+</Steps>
+
+## Verification
+
+Run this command from any terminal to confirm that the CCPEDIA endpoint is reachable and responding correctly before you restart Claude Desktop:
+
+```bash
+curl -s -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | head -c 200
+```
+
+You should see a JSON response beginning with `{"jsonrpc":"2.0"` followed by an array of tool definitions.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Claude Desktop says 'mcp-remote not found'">
+    The `npx` command requires Node.js 18 or newer to automatically fetch and run `mcp-remote`. Check your Node version:
+
+    ```bash
+    node --version
+    ```
+
+    If the version is below 18, upgrade Node. On macOS with Homebrew:
+
+    ```bash
+    brew install node
+    ```
+
+    On Windows, download the latest LTS installer from [nodejs.org](https://nodejs.org).
+  </Accordion>
+  <Accordion title="Tools don't appear after restarting">
+    First, confirm the config file contains valid JSON — no trailing commas and all braces are balanced. You can validate it quickly with:
+
+    ```bash
+    cat ~/Library/Application\ Support/Claude/claude_desktop_config.json | python3 -m json.tool
+    ```
+
+    Then make sure you quit Claude Desktop entirely from the menu bar rather than just closing the window, and reopen it fresh.
+  </Accordion>
+  <Accordion title="Rate-limit errors during a session">
+    CCPEDIA allows 60 calls per 15-minute window per IP. If you exceed that limit you will see a `429` error from the MCP server. Wait 15 minutes for the window to reset, then continue. If you routinely hit this limit, consider self-hosting — the source is Apache 2.0 at [github.com/UnityNodes/ccpedia](https://github.com/UnityNodes/ccpedia).
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,125 @@
+---
+title: "Canton Community: Experts, Mailing Lists, and Collaboration"
+sidebarTitle: "Community"
+description: "Three community patterns to find topic experts by contribution volume, search Canton mailing lists beyond the forum, and discover adjacent ecosystem projects to partner with."
+---
+
+The Canton community is distributed across several surfaces: the Canton forum, five active mailing lists on `lists.canton.network`, GitHub repositories, blog posts, and conference talks. Knowing where to look — and who to ask — dramatically shortens the time between hitting a problem and getting a resolution. These three patterns address the most common community navigation failures: not knowing who the right expert is, not knowing that the mailing lists exist, and not knowing which other projects in the ecosystem are working on adjacent problems.
+
+<Tip>
+  Use the CCPEDIA `find_expert`, `search_mailing_list`, and `find_collaboration_opportunities` MCP tools for community research. They aggregate signals across sources that are not indexed by general search engines, giving you a far more complete picture than a standard web search.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Find someone who already solved this">
+    **Problem**
+
+    The right Canton expert for a specific topic — "topology", "wallet kernel", "sequencer configuration" — isn't obvious from a forum username alone. Posting a question to a general thread and waiting for a response can take days. The people with the deepest knowledge of specific Canton components are often active forum contributors, but their expertise isn't labelled.
+
+    **Solution**
+
+    Call `find_expert({ topic: "..." })` to get a ranked list of forum authors by topic-relevant posting volume. The tool weights contributors by both the number of posts on your topic and their total forum contribution, then returns the top contributors with links to their most relevant threads.
+
+    ```bash
+    # Example MCP call
+    find_expert({ topic: "topology" })
+    # Returns: [
+    #   { author: "john.smith", relevantPosts: 47, topThreads: [...] },
+    #   { author: "canton-eng-jane", relevantPosts: 31, topThreads: [...] },
+    #   ...
+    # ]
+    ```
+
+    Top forum posters on Canton-specific topics tend to be DA engineering staff who maintain the relevant component. That means `find_expert` often surfaces the canonical source directly, rather than a community member who is themselves relying on documentation.
+
+    **How to use the results**
+
+    - Read the expert's top threads on your topic before posting — your question may already be answered
+    - Tag the expert in your forum post if you need a direct response
+    - Use their top threads as a reading list for the component you are working with
+
+    **References**
+    - [CCPEDIA MCP tool: find_expert](/tools/forum-community)
+  </Accordion>
+
+  <Accordion title="Search Canton mailing lists, not just the forum">
+    **Problem**
+
+    Foundation governance decisions, formal CIP votes, SV operation notices, and grants discussions never make it to the Canton forum. They are conducted entirely on `lists.canton.network` mailing lists. If you only search the forum, you are missing a significant portion of the Canton community's institutional knowledge — including some of the most consequential decisions about the protocol's direction.
+
+    **Solution**
+
+    Use `search_mailing_list({ query: "...", group?: "..." })` to search across all Canton mailing lists, or drill into a specific list by passing the `group` parameter.
+
+    ```bash
+    # Search across all mailing lists
+    search_mailing_list({ query: "validator onboarding topology freeze" })
+
+    # Search only formal CIP votes
+    search_mailing_list({ query: "CIP-0056 vote", group: "cip-vote" })
+
+    # Search SV operation announcements
+    search_mailing_list({ query: "MainNet upgrade", group: "validator-announce" })
+    ```
+
+    **The five Canton mailing lists**
+
+    | List | Content |
+    |---|---|
+    | `cip-discuss` | Working discussion on active and proposed CIPs |
+    | `cip-vote` | Formal votes on CIP ratification |
+    | `cip-announce` | Official announcements of CIP status changes |
+    | `grants-discuss` | Dev Fund proposal discussion and community feedback |
+    | `validator-announce` | Operational announcements to all validator operators |
+
+    `globalSyncForum` is also indexed — it contains cross-ecosystem governance discussions that span beyond Canton specifically.
+
+    **When to use this pattern**
+
+    - Before forming an opinion on a CIP — read the `cip-discuss` thread first
+    - When preparing a validator operation — check `validator-announce` for recent notices
+    - When writing a Dev Fund proposal — search `grants-discuss` for prior feedback on similar ideas
+    - When researching Canton governance history for any reason
+
+    **References**
+    - [CCPEDIA MCP tool: search_mailing_list](/tools/talks-docs-mail)
+  </Accordion>
+
+  <Accordion title="Find adjacent projects to partner with">
+    **Problem**
+
+    Builders working on adjacent capabilities — for example a wallet, a DEX, and a bridge — frequently don't discover each other until after they have made incompatible design decisions. The Canton ecosystem has 458 tracked projects, but there is no central directory that surfaces capability overlap. Teams building in isolation duplicate interfaces and miss obvious integration opportunities.
+
+    **Solution**
+
+    Run `find_collaboration_opportunities({ project: "..." })` to find ecosystem projects with overlapping tags and category. The tool returns scored matches from the 458-project ecosystem index, ranked by capability proximity.
+
+    ```bash
+    # Example MCP call
+    find_collaboration_opportunities({
+      project: "A Canton DEX with CIP-0056 token support and order-book settlement"
+    })
+    # Returns: [
+    #   { name: "Canton Wallet SDK", overlap: ["CIP-0056", "token-transfer"], score: 0.79 },
+    #   { name: "Canton Bridge Protocol", overlap: ["settlement", "token-transfer"], score: 0.64 },
+    #   ...
+    # ]
+    ```
+
+    **When to run this**
+
+    Run `find_collaboration_opportunities` twice during a project's lifecycle:
+
+    1. **At proposal time** — before writing a Dev Fund proposal, to discover potential collaborators who might co-author or provide complementary work
+    2. **At design time** — before finalising your interface design, to align with adjacent projects' data models and avoid incompatible choices
+
+    Finding collaborators early means shared interface design happens by discussion rather than by accident. Projects that coordinate on data models produce integrations that actually work without bespoke bridging code.
+
+    **References**
+    - [CCPEDIA MCP tool: find_collaboration_opportunities](/tools/ecosystem)
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  The Canton community is active and responsive. If CCPEDIA's community tools surface a relevant expert or adjacent project, reach out directly on the forum or mailing list — the Canton ecosystem is small enough that direct outreach is normal and usually gets a quick response.
+</Note>

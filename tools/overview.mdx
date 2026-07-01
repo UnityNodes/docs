@@ -1,0 +1,88 @@
+---
+title: "CCPEDIA MCP Tools — Complete Reference Overview"
+sidebarTitle: "Overview"
+description: "All 78 CCPEDIA MCP tools across 10 categories: search, CIPs, forum, code, releases, apps, dev fund, onboarding, docs, and ecosystem."
+---
+
+CCPEDIA exposes **78 MCP tools** to any AI client at `https://ccpedia.xyz/mcp`. Every tool communicates over JSON-RPC 2.0 using streamable HTTP — no authentication required. The tools span every Canton developer surface: full-text and semantic search, Canton Improvement Proposals, the live developer forum, error diagnosis, SDK versioning, Featured Apps, validator scheduling, Dev Fund proposals, onboarding guides, official documentation, YouTube talks, governance mailing lists, and ecosystem project discovery.
+
+Your AI client receives the full tool registry on startup and automatically selects the right tool based on the natural-language descriptions attached to each one. You simply ask your question — the client handles the routing.
+
+## Tool categories
+
+<CardGroup cols={2}>
+  <Card title="Search" icon="magnifying-glass" href="/tools/search">
+    Full-text and semantic search across every Canton source we sync. Covers the forum, GitHub, docs, CIPs, mailing lists, videos, blog, whitepapers, and the ecosystem registry. (17 tools)
+  </Card>
+  <Card title="CIPs" icon="file-lines" href="/tools/cips">
+    Canton Improvement Proposals. Lookup, status, votes, citations, dependency chains, governance comparisons. (10 tools)
+  </Card>
+  <Card title="Forum and Community" icon="comments" href="/tools/forum-community">
+    Live Canton developer forum. Discussions, trending topics, expert discovery, consensus detection. (4 tools)
+  </Card>
+  <Card title="Code and Errors" icon="code" href="/tools/code-errors">
+    Diagnose errors, find code samples, surface breaking changes and known issues across the Canton stack. (4 tools)
+  </Card>
+  <Card title="Releases and SDKs" icon="box" href="/tools/releases-sdks">
+    Track Canton, Splice, and Daml SDK versions. Release notes, npm packages, deprecation status. Everything you need before bumping a version. (9 tools)
+  </Card>
+  <Card title="Featured Apps and SV" icon="star" href="/tools/featured-apps-sv">
+    Live Featured Apps from the Scan API and the Super Validator operations calendar. Schedules, freezes, upgrades, releases. (8 tools)
+  </Card>
+  <Card title="Dev Fund" icon="coins" href="/tools/dev-fund">
+    Canton Dev Fund proposal intelligence. Open asks, milestones, builder overlap detection, success prediction. (5 tools)
+  </Card>
+  <Card title="Onboarding and Drift" icon="map" href="/tools/onboarding-drift">
+    Get started fast, follow a learning path, see where curated KBs drift from live Canton state. (7 tools)
+  </Card>
+  <Card title="Talks, Docs, and Mail" icon="book-open" href="/tools/talks-docs-mail">
+    Canton YouTube talks, official documentation, whitepapers, the foundation knowledge-base, and four Canton mailing lists. (8 tools)
+  </Card>
+  <Card title="Ecosystem" icon="network-wired" href="/tools/ecosystem">
+    Canton ecosystem projects. Similarity search, collaboration matching, dependency graph, gap detection. (6 tools)
+  </Card>
+</CardGroup>
+
+## Connect a client
+
+See [Integrations](/integrations/claude-desktop) for client-specific config snippets.
+
+## Calling a tool directly
+
+You can call any tool without an AI client by POSTing a JSON-RPC 2.0 payload directly to `https://ccpedia.xyz/mcp`. The examples below list all available tools; swap `tools/list` for `tools/call` with a `params.name` and `params.arguments` to invoke a specific tool.
+
+<CodeGroup>
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+```
+```javascript fetch
+const res = await fetch('https://ccpedia.xyz/mcp', {
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json',
+    accept: 'application/json, text/event-stream',
+  },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'tools/list',
+    params: {},
+  }),
+});
+const data = await res.json();
+console.log(data.result.tools);
+```
+</CodeGroup>
+
+## Tool routing
+
+When you connect CCPEDIA to an MCP-compatible AI client such as Claude Desktop, Cursor, or any OpenAI-compatible agent, the client fetches the full tool registry at startup. Each of the 78 tools carries a detailed description that explains exactly what it does, what data it returns, and when to prefer it over similar tools.
+
+You never need to specify a tool name manually. Just ask your question in plain language — "what version of Splice is on MainNet?", "show me the vote tally for CIP-0117", "diagnose this stack trace" — and the client matches your intent to the right tool automatically. For complex questions it may chain several tools together in sequence, using the output of one as input to the next.
+
+<Tip>
+  For open-ended conceptual questions ("how does X work?") your client will typically reach for `semantic_search`. For exact-term lookups it will use `search`. For time-sensitive version data it will call `get_current_versions`. Trust the routing — but you can always be explicit if you prefer a specific tool.
+</Tip>

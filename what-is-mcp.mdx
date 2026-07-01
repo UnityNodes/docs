@@ -1,0 +1,63 @@
+---
+title: "What is the Model Context Protocol (MCP)?"
+sidebarTitle: "What is MCP?"
+description: "MCP is an open standard for connecting AI clients to external tools and data. Learn how CCPEDIA uses it to serve 78 Canton tools to your AI assistant."
+---
+
+**Model Context Protocol (MCP)** is an open standard from Anthropic for connecting AI clients to external tools and data sources. Think of it as HTTP for AI agents: one transport, a common RPC shape, and a growing ecosystem of servers that any compliant client can talk to. MCP lets an AI assistant call real tools — search, fetch, compute — rather than rely solely on what was in its training data.
+
+## How CCPEDIA fits in
+
+CCPEDIA is an MCP server. Your AI tool — Claude Desktop, Cursor, Windsurf, Zed, or any MCP-compliant client — is the MCP client. The two communicate over JSON-RPC 2.0 via streamable HTTP. The flow every query follows looks like this:
+
+1. **Your client calls `tools/list` once at startup.** It receives a list of 78 tools, each with a name, a description, and an input schema.
+2. **You ask a Canton question in plain language.** The client reads the tool descriptions and selects the most relevant tool for your question automatically.
+3. **The tool returns live Canton data.** CCPEDIA fetches the result from its continuously-synced sources and returns it to your client, which weaves it into its answer.
+
+You do not write code. You do not memorise tool names. Routing is transparent and handled entirely by your AI client based on the tool descriptions CCPEDIA provides.
+
+## Transport
+
+CCPEDIA uses **streamable HTTP**, the official MCP transport introduced in the MCP spec v2 in 2025. Most current AI clients — Cursor, Windsurf, Claude Code, and recent builds of Claude Desktop — support streamable HTTP natively.
+
+If you are using an older client that expects stdio transport, use the `mcp-remote` bridge. The relevant [integration guides](/integrations/overview) show the exact command to run.
+
+## Authentication
+
+There is no authentication. CCPEDIA's MCP endpoint is fully public. You do not need an account, an API key, or any credentials to connect.
+
+The server is rate-limited at **60 calls per 15 minutes per IP address** to keep the public service available for everyone. Calls are logged for aggregate adoption metrics, but no personal data is stored. If you need a higher call rate, self-host CCPEDIA — the full source is available under the Apache 2.0 license at [github.com/UnityNodes/ccpedia](https://github.com/UnityNodes/ccpedia).
+
+## Calling CCPEDIA directly
+
+You can interact with the MCP endpoint using any HTTP client. The `tools/list` method returns the full tool catalog:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/list",
+  "params": {}
+}
+```
+
+Send that payload with curl:
+
+```bash
+curl -s -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+```
+
+The response contains a `tools` array with 78 entries. Each entry includes a `name`, a human-readable `description`, and a JSON Schema `inputSchema` that describes what parameters the tool accepts.
+
+<Note>
+  Direct HTTP calls are useful for debugging and scripting, but for day-to-day use you will get more value by connecting CCPEDIA to an AI client that can interpret tool descriptions and route your natural-language questions automatically. See the [integration guides](/integrations/overview) for step-by-step setup.
+</Note>
+
+## Further reading
+
+- [Official MCP specification](https://modelcontextprotocol.io/specification) — the full protocol reference from Anthropic
+- [MCP introduction](https://modelcontextprotocol.io/) — plain-language overview of the protocol and its ecosystem
+- [CCPEDIA integrations overview](/integrations/overview) — step-by-step guides for every supported MCP client

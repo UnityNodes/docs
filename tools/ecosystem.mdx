@@ -1,0 +1,215 @@
+---
+title: "Ecosystem Tools — Canton Projects, GitHub, and Gap Discovery"
+sidebarTitle: "Ecosystem"
+description: "6 tools for Canton ecosystem projects: dependency graphs, gap detection, GitHub discussions, project listings, and indexed repo browsing across 15+ Canton repos."
+---
+
+The Canton ecosystem spans DeFi protocols, wallets, custody solutions, validator infrastructure, NaaS providers, and more. CCPEDIA's 6 ecosystem tools let you map how projects cluster around SDK versions, discover where the ecosystem has unmet demand, read GitHub Discussions from Canton repositories, browse the curated project directory, and list all indexed Canton repos. Whether you are scoping a new project, looking for collaboration opportunities, or doing ecosystem research, these tools give you the structural picture.
+
+---
+
+### `ecosystem_dependency_graph`
+
+Map ecosystem projects matching a topic to the SDK versions and repos they appear alongside, building a quick dependency picture. Use this to answer "if I build with SDK version X, who else is on it?" or to understand which SDK versions the ecosystem has actually adopted for a particular category of application.
+
+<Expandable title="Arguments">
+  <ParamField path="topic" type="string" required>
+    Topic, category, or project family, e.g. `"DeFi"`, `"wallet"`, `"NaaS"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "ecosystem_dependency_graph",
+    "arguments": { "topic": "DeFi" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"ecosystem_dependency_graph","arguments":{"topic":"DeFi"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_ecosystem_gaps`
+
+Surface ecosystem gaps: high-view forum threads with zero replies (unanswered demand), recent unanswered mailing threads, and Dev Fund categories with few accepted proposals. Use this to find "where the ecosystem needs help" — useful for identifying grant opportunities or deciding what to build next.
+
+<Expandable title="Arguments">
+  <ParamField path="limit" type="integer">
+    Max rows per gap type (default 5).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_ecosystem_gaps",
+    "arguments": { "limit": 10 }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_ecosystem_gaps","arguments":{"limit":10}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_github_discussion`
+
+Get the full body and comments of a single GitHub Discussion from a Canton Network repository (e.g. `canton-foundation/docs`) by its GitHub GraphQL node id. Data is read from CCPEDIA's cache, not the live GitHub API. Use `list_github_discussions` to obtain node ids. This is GitHub Discussions — distinct from the Canton web forum (`get_discussion`) and governance mailing lists (`get_mailing_thread`).
+
+<Expandable title="Arguments">
+  <ParamField path="id" type="string" required>
+    GitHub GraphQL node ID, e.g. `"D_kwDOMNgu5s4AY.."` — from `list_github_discussions`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_github_discussion",
+    "arguments": { "id": "D_kwDOMNgu5s4AY.." }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_github_discussion","arguments":{"id":"D_kwDOMNgu5s4AY.."}}}'
+```
+</CodeGroup>
+
+---
+
+### `list_ecosystem_projects`
+
+List Canton Network ecosystem projects — DeFi protocols, wallets, custody solutions, infrastructure, NaaS, and more — from the curated `canton.wiki` catalog. Filter by category or free-text query. Returns name, category, description, and URL. This is a static directory of who builds on Canton, not live on-chain or TVL data (use `get_token_market` for live DeFi TVL).
+
+<Expandable title="Arguments">
+  <ParamField path="category" type="string">
+    Filter by category, e.g. `"DeFi"`, `"Wallets"`, `"NaaS"`.
+  </ParamField>
+  <ParamField path="query" type="string">
+    Free-text search across title, description, and tags.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "list_ecosystem_projects",
+    "arguments": { "category": "DeFi" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_ecosystem_projects","arguments":{"category":"DeFi"}}}'
+```
+</CodeGroup>
+
+---
+
+### `list_github_discussions`
+
+List GitHub Discussions from Canton Network repositories — currently `canton-foundation/docs` — cached by CCPEDIA. Results are sorted by upvotes then recency; filter by repo or category. Data comes from CCPEDIA's cache, not the live GitHub API, and does not include your own repos. Use `get_github_discussion` for the full body and comments of a specific discussion.
+
+<Expandable title="Arguments">
+  <ParamField path="repo" type="string">
+    Filter by repo, e.g. `"canton-foundation/docs"`.
+  </ParamField>
+  <ParamField path="category" type="string">
+    Filter by Discussions category, e.g. `"Q&A"`, `"Ideas"`.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "list_github_discussions",
+    "arguments": { "repo": "canton-foundation/docs", "category": "Q&A" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_github_discussions","arguments":{"repo":"canton-foundation/docs","category":"Q&A"}}}'
+```
+</CodeGroup>
+
+---
+
+### `list_repos`
+
+List the Canton Network GitHub repositories that CCPEDIA has indexed — Canton org repos including `canton-foundation` and Daml/Splice — with the count of issues and PRs indexed per repo. Data comes from CCPEDIA's cache; this is not a live GitHub API call and does not list your own repositories (use a GitHub MCP for that).
+
+<Expandable title="Arguments">
+  _No arguments. Call with `{}`._
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "list_repos",
+    "arguments": {}
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_repos","arguments":{}}}'
+```
+</CodeGroup>
+
+---
+
+<Note>
+  Back to the full tool index: [MCP Tools Overview](/tools/overview)
+</Note>

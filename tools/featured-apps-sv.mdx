@@ -1,0 +1,275 @@
+---
+title: "Featured Apps and SV Tools — Canton Network Live Data"
+sidebarTitle: "Apps & SV"
+description: "8 tools for Canton Featured Apps, Super Validator scheduling, network state snapshots, recent deployments, Canton Coin market data, and content catalog metrics."
+---
+
+CCPEDIA's Featured Apps and Super Validator category connects you to live Canton Network data: the Featured Apps catalogue sourced directly from the Scan API, the SV operations calendar for upcoming releases and freezes, real-time on-chain network state, Canton Coin market snapshots, and CCPEDIA's own content-catalog metrics. These 8 tools give you the operational picture you need whether you are building a dApp, running a validator, or tracking the health of the network.
+
+---
+
+### `get_app_metrics`
+
+Fetch metrics for one specific Featured App by its `app_id` (contract id from the Scan API). Returns name, category, TVL, 24-hour volume, user count, last activity, and any cross-referenced `ecosystem_projects` metadata. TVL, volume, and user counts may be null when only the Scan API source is available.
+
+<Expandable title="Arguments">
+  <ParamField path="app_id" type="string" required>
+    Featured-app contract id — the long hex string returned by `list_featured_apps`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_app_metrics",
+    "arguments": { "app_id": "00abc123..." }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_app_metrics","arguments":{"app_id":"00abc123..."}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_network_state`
+
+Get the latest Canton Network on-chain state snapshot from the public Scan API (`api.cantonnodes.com`): Super Validator list and count, voting threshold, sequencer count, latest mining round, featured-apps count, and cumulative app and validator rewards in CC. This is live network telemetry with a `captured_at` timestamp. It is not CCPEDIA content counts (use `get_network_stats` for those) and not price or TVL data (use `get_token_market`).
+
+<Expandable title="Arguments">
+  _No arguments. Call with `{}`._
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_network_state",
+    "arguments": {}
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_network_state","arguments":{}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_network_stats`
+
+Get CCPEDIA's content-catalog metrics: how many Canton items CCPEDIA has indexed. Counts cover CIPs (total, in-review, final), forum topics and posts, GitHub issues and PRs, dev-fund proposals, docs pages, videos, blog posts, mailing threads, and radar items. This is CCPEDIA coverage and inventory — not live Canton on-chain stats. For on-chain validators and rounds use `get_network_state`; for price and TVL use `get_token_market`.
+
+<Expandable title="Arguments">
+  _No arguments. Call with `{}`._
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_network_stats",
+    "arguments": {}
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_network_stats","arguments":{}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_recent_deployments`
+
+List recent completed SV deployments and releases from `sv_operations_calendar` (operation types: `deploy`, `release`, `upgrade`), cross-referenced with `github_releases` when the title names a SemVer-looking tag. Use this to answer "what shipped on MainNet recently?"
+
+<Expandable title="Arguments">
+  <ParamField path="limit" type="integer">
+    Max rows returned (default 10).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_recent_deployments",
+    "arguments": { "limit": 10 }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_recent_deployments","arguments":{"limit":10}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_sv_schedule`
+
+Show the Super Validator operations schedule from the Canton Foundation's `sv-cal.canton.foundation` feed: planned releases, deployments, upgrades, governance windows, and freezes. Filter by environment. Use this when a validator operator asks "what is happening on MainNet next?" or "when is the next Splice cut?"
+
+<Expandable title="Arguments">
+  <ParamField path="environment" type="string">
+    Restrict to one environment, e.g. `"MainNet"`, `"TestNet"`, `"DevNet"`. Omit for all.
+  </ParamField>
+  <ParamField path="upcoming_only" type="boolean">
+    If `true` (default), only return events with `start_at` >= today.
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned (default 20).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_sv_schedule",
+    "arguments": { "environment": "MainNet", "upcoming_only": true }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_sv_schedule","arguments":{"environment":"MainNet","upcoming_only":true}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_token_market`
+
+Get the latest cached market snapshot for **Canton Coin (CC) only**: USD price, 24-hour change, market cap, 24-hour volume, total Canton DeFi TVL, and per-protocol TVL on Canton. This snapshot comes from CCPEDIA's sync (see the `captured_at` timestamp) — it is not a live exchange feed. This tool cannot price BTC, ETH, or any other asset.
+
+<Expandable title="Arguments">
+  _No arguments. Call with `{}`._
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_token_market",
+    "arguments": {}
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_token_market","arguments":{}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_upcoming_operations`
+
+Convenience wrapper: return all SV operations in the next N days, across all environments and all operation types. Use this for a quick "what should I be ready for this week?" answer for validator and SV ops teams.
+
+<Expandable title="Arguments">
+  <ParamField path="days" type="integer" required>
+    Days ahead to look, between 1 and 180.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_upcoming_operations",
+    "arguments": { "days": 14 }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_upcoming_operations","arguments":{"days":14}}}'
+```
+</CodeGroup>
+
+---
+
+### `list_featured_apps`
+
+List Canton Network Featured Apps from the live Scan-API-sourced catalogue. Filter by category and choose your ordering. Use this for "what dApps are live on Canton?" or to discover providers offering a particular service. Returns name, provider and app_id, category, last activity, and URL.
+
+<Expandable title="Arguments">
+  <ParamField path="category" type="string">
+    Filter by category, e.g. `"Validator"`, `"DeFi"`, `"Tokenized Assets"` — case-insensitive substring match.
+  </ParamField>
+  <ParamField path="sort" type="string">
+    Sort key (default: `"recent"`).
+  </ParamField>
+  <ParamField path="limit" type="integer">
+    Max rows returned (default 25).
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "list_featured_apps",
+    "arguments": { "category": "DeFi" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"list_featured_apps","arguments":{"category":"DeFi"}}}'
+```
+</CodeGroup>
+
+---
+
+<Note>
+  Back to the full tool index: [MCP Tools Overview](/tools/overview)
+</Note>

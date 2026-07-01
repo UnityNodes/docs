@@ -1,0 +1,239 @@
+---
+title: "Onboarding and Drift Tools — Get Started on Canton Fast"
+sidebarTitle: "Onboarding"
+description: "7 tools to onboard developers, generate learning paths, surface Canton API references, answer FAQs, detect KB drift, and track breaking-change radar alerts."
+---
+
+Getting started on Canton is faster when you have the right guide for your background. CCPEDIA's 7 onboarding and drift tools generate personalised quickstart paths for developers coming from any ecosystem, build topic-driven learning sequences, answer common developer questions, provide structured Canton API references, and expose a unique transparency layer that shows you exactly where curated knowledge bases have drifted from the current live state of the network.
+
+---
+
+### `detect_drift`
+
+Find contradictions between docs, forum posts, and GitHub on a topic. Returns counts of how each surface discusses it, plus the most recent doc-page statement and forum statement, so you can spot mismatches before they confuse a developer. This is distinct from `get_kb_drift`, which compares the Foundation KB to live releases specifically.
+
+<Expandable title="Arguments">
+  <ParamField path="topic" type="string" required>
+    Topic to cross-check, e.g. `"Daml triggers"`, `"party allocation"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "detect_drift",
+    "arguments": { "topic": "Daml triggers" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"detect_drift","arguments":{"topic":"Daml triggers"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_api_reference`
+
+Get a structured reference for one specific Canton Network API: ports, endpoints, services, and documentation links. Covers the JSON Ledger API, gRPC Ledger API, Scan API, Validator API, Token Standard APIs, Admin API, and Splice HTTP API. Use this when the user names one of these Canton APIs directly. For broader doc lookups use `search` or `semantic_search` instead.
+
+<Expandable title="Arguments">
+  <ParamField path="api" type="string" required>
+    Which API to look up, e.g. `"JSON Ledger API"`, `"Scan API"`, `"Validator API"`, `"Token Standard APIs"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_api_reference",
+    "arguments": { "api": "Scan API" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_api_reference","arguments":{"api":"Scan API"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_faq`
+
+Look up answers in the Canton Network developer FAQ — Canton Foundation curated and hackathon-tested — covering installation, party creation, Daml contracts, Ledger and Scan APIs, testnet deployment, Canton Coin, the token standard, and common gotchas. Returns the top 3 matches. Use this for a single specific question. For a full onboarding path use `get_started_guide`; for API endpoint details use `get_api_reference`.
+
+<Expandable title="Arguments">
+  <ParamField path="question" type="string" required>
+    Developer question, e.g. `"how do I install"`, `"create party"`, `"deploy to testnet"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_faq",
+    "arguments": { "question": "how do I create a party on Canton?" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_faq","arguments":{"question":"how do I create a party on Canton?"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_kb_drift`
+
+Report where the Foundation Build-on-Canton KB snapshot (synced daily from `github.com/canton-network-devs/Build-on-Canton-MCP`) diverges from CCPEDIA's live signals — `github_releases` and `mailing_messages`. Returns each drifted `(category, key)` with the KB value, the live value derived right now, the drift age in days, and a severity level (`info`, `warn`, or `stale`).
+
+Use this when a user or agent quotes a Canton SDK, Splice, DPM, or Daml version from the Foundation KB and you need to verify whether it is still current. This cross-source quality audit is unique to CCPEDIA.
+
+<Expandable title="Arguments">
+  <ParamField path="refresh" type="boolean">
+    If `true`, re-run the validator before returning the report. Default `false` uses the most recent stored findings.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_kb_drift",
+    "arguments": { "refresh": true }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_kb_drift","arguments":{"refresh":true}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_radar`
+
+Get the Canton Network Radar — CCPEDIA's curated feed of time-sensitive ecosystem alerts: breaking changes, upgrade deadlines, protocol migrations, and required validator actions. Each item includes a deadline, affected components, and a source link. Filter by level (`critical`, `important`, `ecosystem`, or `all`). Use this when a user asks what is changing, what is about to break, or what deadlines are approaching on Canton.
+
+<Expandable title="Arguments">
+  <ParamField path="level" type="string">
+    Severity filter: `"critical"`, `"important"`, `"ecosystem"`, or `"all"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_radar",
+    "arguments": { "level": "critical" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_radar","arguments":{"level":"critical"}}}'
+```
+</CodeGroup>
+
+---
+
+### `get_started_guide`
+
+Generate a personalised Canton Network developer onboarding and quickstart path tailored to the developer's background. Use this when a developer asks how to start building, how to build a dApp, or how to develop on Canton specifically. Ask the user their background first — choose from EVM, Solana, Sui/Move, Web, Enterprise, or New to Blockchain — then call this tool. For a single specific gotcha use `get_faq`; for API details use `get_api_reference`.
+
+<Expandable title="Arguments">
+  <ParamField path="background" type="string" required>
+    Developer's primary background. Ask the user to select before calling this tool: `"EVM"`, `"Solana"`, `"Sui/Move"`, `"Web"`, `"Enterprise"`, or `"New to Blockchain"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_started_guide",
+    "arguments": { "background": "EVM" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_started_guide","arguments":{"background":"EVM"}}}'
+```
+</CodeGroup>
+
+---
+
+### `learning_path`
+
+Construct a structured Canton onboarding sequence for a stated goal: whitepaper → relevant docs → CIPs to know → forum starter threads → talks. Use this when a developer has a specific goal in mind rather than a background to start from. For a background-driven path use `get_started_guide` instead.
+
+<Expandable title="Arguments">
+  <ParamField path="goal" type="string" required>
+    What the learner wants to do, e.g. `"build a Canton dApp"`, `"operate a validator"`, `"write a CIP"`.
+  </ParamField>
+</Expandable>
+
+<CodeGroup>
+```json MCP call
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "learning_path",
+    "arguments": { "goal": "operate a validator" }
+  }
+}
+```
+```bash curl
+curl -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"learning_path","arguments":{"goal":"operate a validator"}}}'
+```
+</CodeGroup>
+
+---
+
+<Note>
+  Back to the full tool index: [MCP Tools Overview](/tools/overview)
+</Note>

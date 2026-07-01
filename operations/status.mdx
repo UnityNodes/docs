@@ -1,0 +1,72 @@
+---
+title: "CCPEDIA Live Status and Source Freshness"
+sidebarTitle: "Status"
+description: "Monitor CCPEDIA's live health dashboard for overall platform state, per-source sync freshness, and 24-hour request counters across all 25 sources."
+---
+
+CCPEDIA publishes its own health dashboard at [ccpedia.xyz/status](https://ccpedia.xyz/status), refreshed every 60 seconds. You can check it at any time to see whether every data source is syncing on schedule, how old each source's data is, and how much traffic the platform is handling.
+
+## Status dashboard
+
+When you open the dashboard you see three things at a glance:
+
+- **Overall state** — a single top-level indicator: `OK`, `Degraded`, or `Down`. `Degraded` means one or more sources have exceeded their freshness threshold but the platform is still serving requests. `Down` means the platform itself is unreachable or critically impaired.
+- **Per-source age** — for each of the 25 synced sources, the time elapsed since the last successful run and a freshness verdict (`fresh` or `stale`). Each source is evaluated against its own threshold, so a daily source is not penalised for being hours old.
+- **24-hour request counters** — rolling totals for search hits, MCP tool calls, API requests, and page visits. These give you a quick sense of current platform load.
+
+<Tip>
+  Bookmark [https://ccpedia.xyz/status](https://ccpedia.xyz/status) for the always-current live view. No login required.
+</Tip>
+
+## Machine-readable status
+
+`GET https://ccpedia.xyz/status/data` returns the full status payload as JSON. The response shape is stable and designed for programmatic consumption:
+
+```json
+{
+  "overall": "ok",
+  "generated_at": "2026-06-30T09:03:04.593Z",
+  "sources": [
+    {
+      "name": "featured-apps",
+      "last_run": "2026-06-30T09:00:33.788Z",
+      "age_seconds": 150,
+      "status": "fresh"
+    }
+  ]
+}
+```
+
+The top-level fields are:
+
+| Field | Type | Description |
+|---|---|---|
+| `overall` | string | Platform-wide verdict: `"ok"`, `"degraded"`, or `"down"` |
+| `generated_at` | ISO 8601 string | Timestamp when this payload was generated |
+| `sources` | array | One entry per synced source (25 total) |
+
+Each entry in `sources` contains:
+
+| Field | Type | Description |
+|---|---|---|
+| `name` | string | Source slug (e.g. `"featured-apps"`, `"forum"`, `"cips"`) |
+| `last_run` | ISO 8601 string | Timestamp of the last completed sync run |
+| `age_seconds` | number | Seconds elapsed since `last_run` |
+| `status` | string | Per-source verdict: `"fresh"` or `"stale"` |
+
+## Using status for monitoring
+
+Because `/status/data` is a public, unauthenticated JSON endpoint you can wire it into your own observability stack with minimal effort.
+
+**Dashboards** — poll the endpoint on a 60-second interval and graph `age_seconds` per source to spot drift before it affects users.
+
+**Status badges** — read `overall` and render a coloured badge in your internal wiki or README. A value of `"ok"` maps to green, `"degraded"` to amber, and `"down"` to red.
+
+**Third-party integrations** — feed the payload into tools such as Datadog, Grafana, Better Uptime, or a custom Slack webhook. Because every source reports its own `age_seconds` you can set per-source alerting thresholds that match each source's natural cadence.
+
+```http
+GET https://ccpedia.xyz/status/data
+Accept: application/json
+```
+
+No API key, no rate limit on this endpoint — it is served from a CDN-cached layer that regenerates every 60 seconds.

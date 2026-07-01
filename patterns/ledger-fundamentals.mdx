@@ -1,0 +1,69 @@
+---
+title: "Canton Ledger Fundamentals: Party Allocation and API Selection"
+sidebarTitle: "Ledger Basics"
+description: "Two foundational Canton patterns covering safe party allocation and choosing between the JSON and gRPC Ledger APIs for your use case."
+---
+
+The ledger is the foundation everything else rests on, which makes early configuration mistakes especially costly. These two patterns address the two questions teams hit first when they stand up a fresh Canton environment: how to allocate parties without errors, and which Ledger API surface fits their architecture. Getting both right before you write application logic saves hours of back-tracking later.
+
+<Tip>
+  Use the CCPEDIA `semantic_search` tool to explore related ledger topics. For example: `semantic_search({ query: "party allocation JSON Ledger API" })` returns forum threads, docs, and GitHub issues that touch these fundamentals.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Allocate a party safely">
+    **Problem**
+
+    On a fresh Canton install the JSON Ledger API rejects submissions because no party has been allocated yet. If you try to submit a command before allocation you will receive authorization errors that can be confusing to diagnose.
+
+    **Solution**
+
+    Call `/v1/parties/allocate` with a `partyIdHint` you control. Re-using the same hint is idempotent — the participant returns the existing identifier rather than creating a duplicate. This means you can safely call the endpoint on every startup without risk.
+
+    ```bash
+    curl -X POST $LEDGER/v1/parties/allocate \
+      -H "Authorization: Bearer $TOKEN" \
+      -d '{"identifierHint": "alice", "displayName": "Alice"}'
+    ```
+
+    The response includes the fully-qualified party ID (`alice::participant1::...`) which you must use in all subsequent contract submissions and queries. Store it — do not reconstruct it from the hint.
+
+    **When to use this pattern**
+
+    - Any fresh Canton participant node before your first contract submission
+    - Integration tests that spin up isolated participants per test run
+    - Onboarding flows where each end user receives a dedicated party
+
+    **References**
+    - [Canton docs: Party allocation](https://docs.canton.network/sdks-tools/api-reference/)
+  </Accordion>
+
+  <Accordion title="Pick between JSON Ledger API and gRPC Ledger API">
+    **Problem**
+
+    Developers default to gRPC out of habit — it's the lowest-level interface and feels authoritative. But for browser-facing dApps, gRPC's binary framing, HTTP/2 requirements, and code-generation overhead add unnecessary complexity. Choosing the wrong transport early forces an expensive refactor later.
+
+    **Solution**
+
+    Use the decision matrix below to pick once and commit:
+
+    | Use case | Recommended API |
+    |---|---|
+    | Browser or Node.js dApp | **JSON Ledger API v2** |
+    | Backend service with tight latency requirements | **gRPC Ledger API** |
+    | Streaming contract updates to a UI | **JSON Ledger API v2** (SSE) |
+    | High-throughput batch processing | **gRPC Ledger API** |
+    | Prototyping or scripting | **JSON Ledger API v2** |
+
+    Both APIs expose the same underlying domain model — contracts, parties, commands, completions — so there is no functional difference in what you can express. JSON Ledger API v2 uses simpler bearer-token auth and Server-Sent Events (SSE) for streaming, which browser security models handle naturally. The gRPC API provides stronger typing through generated stubs and lower per-call overhead for services making thousands of requests per second.
+
+    If you are unsure, start with JSON Ledger API v2. You can migrate performance-critical paths to gRPC later without changing your Daml contracts.
+
+    **References**
+    - [API reference](https://docs.canton.network/sdks-tools/api-reference/)
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  More ledger fundamentals are covered in the Canton documentation and in the CCPEDIA forum index. Run `semantic_search({ query: "Canton ledger API authentication" })` through the CCPEDIA MCP server to surface additional forum-sourced answers that may not appear in the official docs.
+</Note>

@@ -1,0 +1,101 @@
+---
+title: "CCPEDIA REST API v1 Reference"
+sidebarTitle: "Overview"
+description: "Read-only REST access to all CCPEDIA Canton Network data — CIPs, discussions, and source freshness — no auth or JSON-RPC required."
+---
+
+CCPEDIA exposes a read-only REST API at `https://ccpedia.xyz/api/v1/*` alongside the MCP server. Every piece of data available through the MCP server is also reachable here through standard HTTP requests and JSON responses — no special client libraries required.
+
+## Base URL
+
+All v1 endpoints share the following base URL:
+
+```
+https://ccpedia.xyz/api/v1/
+```
+
+Append the path for each endpoint directly to this base. For example, to fetch the TL;DR for CIP-0056 you would call `https://ccpedia.xyz/api/v1/cips/CIP-0056/tldr`.
+
+## Authentication
+
+No authentication is required to use the API. All endpoints are publicly accessible without tokens, API keys, or headers.
+
+<Note>
+  Because the API is open, please be a good citizen and respect the rate limits
+  described below. Abusive traffic may result in IP-level blocks.
+</Note>
+
+## Rate Limits
+
+The REST API shares the same rate limit as the MCP server: **60 calls per 15 minutes per IP address**. Once you exceed this limit, the API returns `429 Too Many Requests` until the window resets.
+
+Every response includes `Cache-Control` headers that tell you how long a particular resource is considered fresh. Honour these headers — serving cached responses counts as zero calls against your quota and keeps your integration snappy.
+
+## OpenAPI Spec
+
+A full, machine-readable OpenAPI 3.x specification is available at:
+
+```
+https://ccpedia.xyz/api/v1/openapi.json
+```
+
+Download it with curl to feed into code generators, API clients such as Postman or Insomnia, or documentation tooling:
+
+```bash
+curl -s https://ccpedia.xyz/api/v1/openapi.json -o ccpedia-openapi.json
+```
+
+## Endpoint Families
+
+The API is organised into three families. Each family is documented on its own page.
+
+<CardGroup cols={2}>
+  <Card title="CIPs" icon="file-lines" href="/api-reference/cips">
+    Look up individual proposals, run batch queries, and fetch cross-surface
+    mentions for any CIP.
+  </Card>
+  <Card title="Discussions" icon="comments" href="/api-reference/discussions">
+    Search and browse forum threads, mailing-list messages, and GitHub
+    discussions in one unified endpoint.
+  </Card>
+  <Card title="Sources" icon="database" href="/api-reference/sources">
+    Inspect per-source freshness, record counts, and change history across all
+    25 tracked data sources.
+  </Card>
+</CardGroup>
+
+## When to Use REST vs MCP
+
+Both surfaces return identical data. Your choice depends on how your application is built and what it needs to do.
+
+| Scenario | Use |
+| --- | --- |
+| Building a dashboard, status page, or monitoring tool | **REST** |
+| Need predictable HTTP caching via `Cache-Control` headers | **REST** |
+| Embedding Canton data in a server that does not speak MCP | **REST** |
+| Powering an AI assistant or LLM-based chat interface | **MCP** |
+| Running an agentic workflow that needs structured tool calls | **MCP** |
+| Prefer less integration plumbing | **MCP** |
+
+## Onboarding Ping
+
+Use the `POST /api/onboarding/ping` endpoint to verify that you can reach the API and to confirm how many live tools are currently registered. This is useful as a health check at the start of an integration or CI pipeline.
+
+```bash
+curl -s -X POST https://ccpedia.xyz/api/onboarding/ping | jq .
+```
+
+A successful response looks like this:
+
+```json
+{
+  "ok": true,
+  "live_tools": 12,
+  "message": "CCPEDIA API is reachable."
+}
+```
+
+<Tip>
+  Add this ping to your deployment pipeline to catch connectivity issues before
+  they surface in production.
+</Tip>

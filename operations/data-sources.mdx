@@ -1,0 +1,69 @@
+---
+title: "CCPEDIA Data Sources and Sync Schedule"
+sidebarTitle: "Data Sources"
+description: "All 25 Canton Network sources CCPEDIA continuously syncs, their individual refresh cadences, and a summary of exactly what each source covers."
+---
+
+CCPEDIA continuously syncs 25 official Canton surfaces — from live forum threads and GitHub activity to published whitepapers and real-time network state. This page lists every source, its refresh cadence, and what it covers so you always know exactly where an answer comes from and how current it is.
+
+## Sources and refresh cadences
+
+| Source | What it covers | Refresh cadence |
+|---|---|---|
+| Forum (Discourse) | Topics and posts from the Canton community forum | 5 minutes |
+| GitHub issues / PRs | Issues and pull requests across roughly 20 Canton repositories | 15 minutes |
+| GitHub releases | Tagged release notes for all tracked Canton repos | 15 minutes |
+| GitHub discussions | GitHub Discussions threads across Canton repositories | 15 minutes |
+| Mailing lists (cip-discuss, cip-vote, cip-announce, validator-announce, globalSyncForum, grants-discuss) | All six Canton mailing list archives | 5 minutes |
+| Canton docs corpus | Published pages from docs.canton.network and docs.digitalasset.com | Daily |
+| CIPs | Canton Improvement Proposals and their full status history | 15 minutes |
+| Foundation knowledge base | Content from canton-network-devs/Build-on-Canton-MCP | Daily |
+| SDK versions registry | Latest SDK versions from npm and GitHub releases | 30 minutes |
+| Canton YouTube channel | Video metadata and descriptions from the official Canton channel | 12 hours |
+| Canton blog | Blog posts from the Canton blog feed | 30 minutes |
+| Whitepapers | Canonical Canton and Digital Asset whitepapers | Daily |
+| Ecosystem projects | Curated list of projects building on Canton | Manual |
+| Radar | Technology adoption radar items | Manual |
+| Dev fund proposals | Proposals from canton-foundation/canton-dev-fund | 15 minutes |
+| Featured Apps (Canton Scan API) | Apps surfaced via the Canton Scan featured-apps API | 15 minutes |
+| SV operations calendar | Events from sv-cal.canton.foundation | Daily |
+| Network state | Live network state from api.cantonnodes.com | 5 minutes |
+| Token market | Live Canton token market data | 5 minutes |
+
+## Freshness guarantees
+
+Every source has its own freshness threshold that reflects its natural update frequency. A source is considered **fresh** when its last successful sync completed within that threshold. Sources with high-velocity data — forum posts, mailing lists, network state, and token market — sync every 5 minutes. Mid-velocity sources such as GitHub items, CIPs, dev fund proposals, and featured apps sync every 15 minutes. Lower-velocity sources such as the docs corpus, whitepapers, and the Foundation knowledge base sync daily, since their content changes infrequently.
+
+You can inspect the current age and status of every source at any time on the live status page.
+
+<Note>
+  The live record of all source freshness is at [https://ccpedia.xyz/status/data](https://ccpedia.xyz/status/data). This machine-readable JSON endpoint reports the `age_seconds` and `status` for each of the 25 sources and is refreshed every 60 seconds.
+</Note>
+
+## Querying source data
+
+### REST endpoint
+
+Use the `sources` query parameter to filter results to one or more specific sources. Pass a comma-separated list of source type slugs:
+
+```http
+GET https://ccpedia.xyz/api/search?q=synchronisation&sources=forum,cips,github-issues
+```
+
+The response includes a `source` field on every result so you can see exactly which surface each item came from.
+
+### MCP `search` tool with `source_types` filter
+
+When calling CCPEDIA via the Model Context Protocol, pass the optional `source_types` array to restrict the search to specific sources:
+
+```json
+{
+  "tool": "search",
+  "arguments": {
+    "query": "validator onboarding",
+    "source_types": ["forum", "cips", "foundation-kb"]
+  }
+}
+```
+
+Valid `source_types` values map directly to the source slugs in the status payload — use the `name` field from [https://ccpedia.xyz/status/data](https://ccpedia.xyz/status/data) as your reference.

@@ -1,0 +1,99 @@
+---
+title: "Canton Governance: CIP Dependencies and Cross-Surface Tracking"
+sidebarTitle: "Governance"
+description: "Two governance patterns to check CIP dependency chains before building and track all CIP discussions across mailing lists, forum, and GitHub simultaneously."
+---
+
+Canton Improvement Proposals (CIPs) are the mechanism through which protocol changes, new standards, and ecosystem capabilities are specified and ratified. Building on a CIP before it reaches Final status is risky — upstream changes can break your implementation, and a CIP's stated `Requires:` dependencies may not yet have shipped. These two patterns help you assess CIP readiness before committing to an implementation, and stay on top of active CIP discussions that span multiple communication surfaces at once.
+
+<Tip>
+  Use the CCPEDIA `detect_cip_dependency_chain` and `get_cip_citations` MCP tools as your primary governance research instruments. They aggregate information across cip-discuss, cip-vote, the Canton forum, and GitHub that would take hours to collect manually.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Check whether you can build on a CIP today">
+    **Problem**
+
+    CIPs move through several states — Draft, In Review, Approved, Final — and a CIP in Draft or In Review may declare `Requires:` blockers that haven't shipped yet. Building on a CIP in this condition means your implementation is subject to breaking changes as the upstream CIP and its prerequisites evolve. Teams have shipped code against Draft CIPs only to have the interface change substantially before Final.
+
+    **Solution**
+
+    Call `detect_cip_dependency_chain({ cip_id: "CIP-XXXX" })` before committing to a CIP-based implementation. The tool returns the full prerequisite chain with each prerequisite's current status. Use the following decision rule:
+
+    | Status | Meaning for you |
+    |---|---|
+    | `Final` | The CIP is complete and stable — safe to build on |
+    | `Approved` | The CIP is ratified — implementation is underway or complete |
+    | `In Review` | The specification may still change — build with caution |
+    | `Draft` | The CIP is not yet stable — do not build production code against it |
+
+    ```bash
+    # Example MCP call
+    detect_cip_dependency_chain({ cip_id: "CIP-0103" })
+    # Returns the full chain: CIP-0103 → CIP-0056 → ...
+    # with status for each node in the chain
+    ```
+
+    If any CIP in the dependency chain has status `Draft` or `In Review`, that CIP still blocks. A target CIP that is `Approved` but whose prerequisite is `Draft` is not yet safe to build against.
+
+    **Practical workflow**
+
+    <Steps>
+      <Step title="Identify your target CIP">
+        Note the CIP number from the feature specification or protocol documentation you are implementing.
+      </Step>
+      <Step title="Run the dependency chain check">
+        Call `detect_cip_dependency_chain` with your target CIP ID.
+      </Step>
+      <Step title="Review each node's status">
+        Any node that is not `Final` or `Approved` represents a risk. Decide whether to wait, or to build with explicit version-pin guards.
+      </Step>
+      <Step title="Re-check before shipping">
+        CIP statuses change. Re-run the check before your production release, not just at design time.
+      </Step>
+    </Steps>
+
+    **References**
+    - [CCPEDIA MCP tool: detect_cip_dependency_chain](/tools/cips)
+  </Accordion>
+
+  <Accordion title="Track all conversations about a CIP across surfaces">
+    **Problem**
+
+    Active CIP discussions happen simultaneously across the `cip-discuss` mailing list, the Canton forum, GitHub issues and PRs, blog posts, and video content. Following only one of these surfaces gives you a partial picture. Critical objections, implementation notes, and informal consensus can appear on any of them — and the formal vote may be influenced by discussions that happened entirely on the mailing list.
+
+    **Solution**
+
+    Call `get_cip_citations({ cip_number: "XXXX" })` to retrieve per-source backlinks at per-message granularity. A single call returns:
+
+    | Source type | What you get |
+    |---|---|
+    | `cip-discuss` mailing list | Individual message links with author and timestamp |
+    | Canton forum | Post-level links to threads that cite the CIP |
+    | GitHub | Issue and PR numbers with title and status |
+    | Blog posts | External articles that reference the CIP |
+    | Videos | Conference talks and recordings that discuss the CIP |
+
+    ```bash
+    # Example MCP call
+    get_cip_citations({ cip_number: "0056" })
+    # Returns all cross-surface references to CIP-0056
+    ```
+
+    This is the fastest way to answer questions like "has this concern already been raised?", "who are the most active voices in this CIP's discussion?", and "is there informal consensus that the final spec will change in a particular direction?"
+
+    **When to use this pattern**
+
+    - Before opening a new discussion thread — check whether your point was already raised
+    - When writing an implementation that needs to track the CIP's evolution
+    - When preparing a formal `cip-vote` response — understand the full context first
+    - When researching Canton governance for a technical blog post or conference talk
+
+    **References**
+    - [CCPEDIA MCP tool: get_cip_citations](/tools/cips)
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  The `cip-vote` mailing list contains the authoritative formal votes on each CIP. Use `search_mailing_list({ query: "CIP-0056", group: "cip-vote" })` via CCPEDIA to see the voting record for any specific proposal. This is the definitive source for determining whether a CIP is officially ratified.
+</Note>

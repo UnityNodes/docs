@@ -1,0 +1,273 @@
+---
+title: "REST API: Source Freshness and Record Count Endpoints"
+sidebarTitle: "Sources"
+description: "Inspect per-source freshness, record counts, age in seconds, and a full change log across all 25 Canton Network data sources CCPEDIA tracks."
+---
+
+The sources endpoints let you inspect the health and freshness of every data source that CCPEDIA indexes. Each of the 25 tracked sources — covering forum threads, mailing-list archives, GitHub Discussions, and the CIP specification repository — exposes its last-crawl timestamp, age in seconds, record count, and whether it is within its freshness threshold. Use these endpoints to build status dashboards, trigger alerts when a source goes stale, or audit data coverage before querying.
+
+For a high-level health overview you can also visit the status page at [`https://ccpedia.xyz/status/data`](https://ccpedia.xyz/status/data), which aggregates the same information in a human-readable format.
+
+---
+
+### GET /api/v1/sources
+
+Return metadata for all 25 tracked sources in a single response. Each object in the array tells you when the source was last successfully crawled, how old that data is, how many records are indexed, and whether the source is considered fresh according to its configured threshold.
+
+**No parameters.** This endpoint takes no query parameters.
+
+**Response fields**
+
+The response is a JSON array. Each element represents one tracked source.
+
+<ResponseField name="[].name" type="string">
+  A machine-readable slug identifying the source, e.g. `"cip-forum"`,
+  `"cip-mailing-list"`, or `"github-discussions-canton"`.
+</ResponseField>
+
+<ResponseField name="[].type" type="string">
+  The category of this source. Common values are `"forum"`, `"mailing"`,
+  `"github_discussions"`, and `"spec"`.
+</ResponseField>
+
+<ResponseField name="[].last_run" type="string">
+  ISO 8601 timestamp of the most recent successful crawl for this source.
+</ResponseField>
+
+<ResponseField name="[].age_seconds" type="integer">
+  Number of seconds since `last_run`. Lower is fresher.
+</ResponseField>
+
+<ResponseField name="[].record_count" type="integer">
+  Total number of records currently indexed from this source.
+</ResponseField>
+
+<ResponseField name="[].freshness_threshold_seconds" type="integer">
+  The maximum age in seconds before this source is considered stale. Varies
+  by source type — high-activity sources have shorter thresholds.
+</ResponseField>
+
+<ResponseField name="[].status" type="string">
+  `"fresh"` if `age_seconds` is within `freshness_threshold_seconds`;
+  `"stale"` otherwise.
+</ResponseField>
+
+<CodeGroup>
+
+```bash curl — all sources
+curl -s 'https://ccpedia.xyz/api/v1/sources' | jq .
+```
+
+```json Response
+[
+  {
+    "name": "cip-forum",
+    "type": "forum",
+    "last_run": "2025-01-10T08:30:00Z",
+    "age_seconds": 1800,
+    "record_count": 4823,
+    "freshness_threshold_seconds": 7200,
+    "status": "fresh"
+  },
+  {
+    "name": "cip-mailing-list",
+    "type": "mailing",
+    "last_run": "2025-01-10T07:00:00Z",
+    "age_seconds": 7200,
+    "record_count": 12041,
+    "freshness_threshold_seconds": 14400,
+    "status": "fresh"
+  },
+  {
+    "name": "github-discussions-canton",
+    "type": "github_discussions",
+    "last_run": "2025-01-09T22:15:00Z",
+    "age_seconds": 37500,
+    "record_count": 892,
+    "freshness_threshold_seconds": 28800,
+    "status": "stale"
+  }
+]
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```bash curl — name, age, status only
+curl -s 'https://ccpedia.xyz/api/v1/sources' \
+  | jq '.[] | {name, age_seconds, status}'
+```
+
+```json Response
+{"name": "cip-forum", "age_seconds": 1800, "status": "fresh"}
+{"name": "cip-mailing-list", "age_seconds": 7200, "status": "fresh"}
+{"name": "github-discussions-canton", "age_seconds": 37500, "status": "stale"}
+```
+
+</CodeGroup>
+
+<Note>
+  A `"stale"` status means the crawler has not refreshed that source within its
+  expected window. Data is still served — it is simply older than usual. Check
+  [`https://ccpedia.xyz/status/data`](https://ccpedia.xyz/status/data) for
+  incident context if you see widespread staleness.
+</Note>
+
+---
+
+### GET /api/v1/sources/:name
+
+Fetch metadata for a single named source. Use this endpoint when you want to poll one specific source without downloading the full list.
+
+<ParamField path="name" type="string" required>
+  The machine-readable slug of the source to inspect, e.g. `"cip-forum"` or
+  `"github-discussions-canton"`. Use `GET /api/v1/sources` to discover valid
+  names.
+</ParamField>
+
+**Response fields**
+
+The response is a single object with the same shape as one element of the `GET /api/v1/sources` array.
+
+<ResponseField name="name" type="string">
+  Machine-readable slug for the source.
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  Category of the source: `"forum"`, `"mailing"`, `"github_discussions"`, or
+  `"spec"`.
+</ResponseField>
+
+<ResponseField name="last_run" type="string">
+  ISO 8601 timestamp of the most recent successful crawl.
+</ResponseField>
+
+<ResponseField name="age_seconds" type="integer">
+  Seconds elapsed since `last_run`.
+</ResponseField>
+
+<ResponseField name="record_count" type="integer">
+  Total indexed records for this source.
+</ResponseField>
+
+<ResponseField name="freshness_threshold_seconds" type="integer">
+  Maximum age before this source is flagged as stale.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  `"fresh"` or `"stale"`.
+</ResponseField>
+
+<CodeGroup>
+
+```bash curl
+curl -s 'https://ccpedia.xyz/api/v1/sources/cip-forum' | jq .
+```
+
+```json Response
+{
+  "name": "cip-forum",
+  "type": "forum",
+  "last_run": "2025-01-10T08:30:00Z",
+  "age_seconds": 1800,
+  "record_count": 4823,
+  "freshness_threshold_seconds": 7200,
+  "status": "fresh"
+}
+```
+
+</CodeGroup>
+
+---
+
+### GET /api/v1/changes
+
+Return a log of everything that changed across all indexed sources since a given timestamp. Use this endpoint to power incremental sync pipelines, "what's new" feeds, or webhook-style polling without re-fetching entire datasets.
+
+<ParamField query="since" type="string" required>
+  An ISO 8601 timestamp. The API returns all records that were created or
+  updated after this point in time, e.g. `2025-01-09T00:00:00Z`.
+</ParamField>
+
+**Response fields**
+
+<ResponseField name="changes" type="array">
+  An array of change objects, one per updated or newly indexed record.
+</ResponseField>
+
+<Expandable title="changes item fields">
+
+<ResponseField name="source" type="string">
+  The source slug where the change occurred.
+</ResponseField>
+
+<ResponseField name="record_id" type="string">
+  CCPEDIA internal identifier of the affected record.
+</ResponseField>
+
+<ResponseField name="change_type" type="string">
+  Either `"created"` (new record) or `"updated"` (existing record modified).
+</ResponseField>
+
+<ResponseField name="changed_at" type="string">
+  ISO 8601 timestamp of when CCPEDIA detected the change.
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  Direct link to the original content that changed.
+</ResponseField>
+
+</Expandable>
+
+<ResponseField name="since" type="string">
+  The `since` value you supplied, echoed back for confirmation.
+</ResponseField>
+
+<ResponseField name="total" type="integer">
+  Total number of change records returned.
+</ResponseField>
+
+<CodeGroup>
+
+```bash curl
+curl -s 'https://ccpedia.xyz/api/v1/changes?since=2025-01-09T00:00:00Z' | jq .
+```
+
+```json Response
+{
+  "since": "2025-01-09T00:00:00Z",
+  "total": 3,
+  "changes": [
+    {
+      "source": "cip-forum",
+      "record_id": "disc-00899",
+      "change_type": "created",
+      "changed_at": "2025-01-09T11:22:00Z",
+      "url": "https://lists.sync.global/g/cip-discuss/topic/899"
+    },
+    {
+      "source": "github-discussions-canton",
+      "record_id": "disc-01031",
+      "change_type": "updated",
+      "changed_at": "2025-01-09T14:05:00Z",
+      "url": "https://github.com/digital-asset/canton/discussions/1031"
+    },
+    {
+      "source": "cip-spec",
+      "record_id": "cip-0061",
+      "change_type": "created",
+      "changed_at": "2025-01-09T17:48:00Z",
+      "url": "https://github.com/digital-asset/cips/blob/main/CIP-0061/README.md"
+    }
+  ]
+}
+```
+
+</CodeGroup>
+
+<Tip>
+  Store the `changed_at` timestamp of the last record you process and pass it
+  back as `since` on your next poll. This gives you a reliable, gap-free
+  incremental sync without re-downloading unchanged records.
+</Tip>

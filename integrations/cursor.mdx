@@ -1,0 +1,75 @@
+---
+title: "Add CCPEDIA to Cursor IDE"
+sidebarTitle: "Cursor"
+description: "Connect CCPEDIA to Cursor IDE as a native streamable HTTP MCP server — no mcp-remote bridge or Node.js required."
+---
+
+Cursor has built-in support for streamable HTTP MCP servers, so connecting CCPEDIA is a straightforward settings change — no bridge process, no Node.js dependency, no manual JSON file editing. Once added, all 78 CCPEDIA tools are available in Composer via the **@** mention menu and respond to natural-language questions about the Canton Network.
+
+<Steps>
+  <Step title="Open Cursor Settings and navigate to MCP">
+    Open Cursor, then go to **Settings** → **MCP**. You will see a list of configured MCP servers with an **Add new MCP server** button at the top.
+  </Step>
+  <Step title="Add CCPEDIA as a streamable HTTP server">
+    Click **Add new MCP server** and enter the following configuration. Set the server type to **streamable-http** and paste the endpoint URL:
+
+    ```json
+    {
+      "mcpServers": {
+        "ccpedia": {
+          "url": "https://ccpedia.xyz/mcp"
+        }
+      }
+    }
+    ```
+
+    <Note>
+      Cursor supports streamable HTTP natively — no `mcp-remote` bridge is needed. The `url` field is all Cursor requires for an HTTP MCP server.
+    </Note>
+  </Step>
+  <Step title="Save and verify the tool count">
+    Click **Save**. Cursor will connect to the endpoint and enumerate available tools. After a few seconds you should see **78 tools** listed under the CCPEDIA server entry. If the count appears, the integration is live.
+  </Step>
+</Steps>
+
+## Using CCPEDIA in Composer
+
+Open the **Composer** panel and type `@` to bring up the tool picker. CCPEDIA tools appear under the `ccpedia` namespace. You can select a specific tool or simply ask a Canton-related question in plain English — Cursor's model will choose the right tool automatically.
+
+Examples to try:
+
+- *"What's the current Canton SDK version?"*
+- *"Explain the Canton participant node architecture."*
+- *"How do I configure a domain for high availability?"*
+
+<Tip>
+  Pin the tools you use most often to Cursor's @-mention favourites for faster access. Tool descriptions display inline in the picker, so Cursor's autocomplete usually selects the correct tool without manual selection.
+</Tip>
+
+## Verification
+
+Confirm the endpoint is reachable before opening Cursor settings:
+
+```bash
+curl -s -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | head -c 200
+```
+
+A response beginning with `{"jsonrpc":"2.0"` confirms the server is up.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Tools don't load or the server shows an error">
+    Double-check that you selected **streamable-http** as the server type. If you accidentally chose a stdio type, Cursor will try to spawn a local process rather than connect to the URL. Remove the server entry and add it again with the correct type.
+
+    Also confirm you can reach the endpoint with the curl command above. A `200` or streamed response means the server is healthy.
+  </Accordion>
+  <Accordion title="Rate-limit errors mid-session">
+    CCPEDIA enforces 60 calls per 15-minute window per IP. If you are making a large number of tool calls — for example, running a research-heavy Composer session — you may hit the limit. Wait for the window to reset, or spread your requests over time. For sustained high-volume usage, self-hosting is the recommended approach (Apache 2.0 source at [github.com/UnityNodes/ccpedia](https://github.com/UnityNodes/ccpedia)).
+  </Accordion>
+</AccordionGroup>
+
+[Cursor MCP documentation ↗](https://docs.cursor.com/context/model-context-protocol)

@@ -1,0 +1,91 @@
+---
+title: "Add CCPEDIA to Claude Code CLI"
+sidebarTitle: "Claude Code"
+description: "Register CCPEDIA as an MCP server in Anthropic's Claude Code CLI with a single command — no manual JSON editing needed."
+---
+
+Claude Code is Anthropic's terminal-based AI coding assistant. It manages MCP servers through the `claude mcp add` command, which writes the server entry to a config file for you. CCPEDIA connects over streamable HTTP natively, so there is no bridge process to configure and no Node.js dependency beyond Claude Code itself.
+
+<Steps>
+  <Step title="Register CCPEDIA with claude mcp add">
+    Run the following command from your terminal. Use the `--transport http` flag to tell Claude Code that CCPEDIA is a streamable HTTP server:
+
+    ```bash
+    claude mcp add ccpedia --transport http https://ccpedia.xyz/mcp
+    ```
+
+    By default this writes the entry to a `.mcp.json` file in your current project directory, scoping CCPEDIA to that project.
+
+    To register CCPEDIA globally across all your projects, add the `--scope user` flag:
+
+    ```bash
+    claude mcp add ccpedia --transport http --scope user https://ccpedia.xyz/mcp
+    ```
+
+    <Tip>
+      Claude Code supports streamable HTTP natively. You do not need the `mcp-remote` bridge or any Node.js setup beyond Claude Code itself.
+    </Tip>
+  </Step>
+  <Step title="Verify the connection">
+    Confirm that CCPEDIA registered successfully and is reachable:
+
+    ```bash
+    claude mcp list
+    ```
+
+    You should see `ccpedia` in the output with a `✓ connected` status. If it shows a connection error, run the verification curl command in the section below.
+  </Step>
+  <Step title="Start a session and ask a Canton question">
+    Launch Claude Code and try a Canton-related question to confirm the tools are working:
+
+    ```bash
+    claude
+    ```
+
+    Then ask: *"What's the current Canton SDK version?"* or *"Explain how Canton domain nodes work."* Claude Code will invoke the appropriate CCPEDIA tool and return a live answer.
+  </Step>
+</Steps>
+
+## Using CCPEDIA tools in Claude Code
+
+Inside a Claude Code session, CCPEDIA tools are namespaced as `mcp__ccpedia__<tool_name>`. You rarely need to type the full name — Claude Code's model selects the right tool automatically from natural-language questions. If you want to invoke a specific tool directly, use the namespace prefix:
+
+```text
+mcp__ccpedia__get_current_versions
+mcp__ccpedia__find_expert
+mcp__ccpedia__diagnose_error
+```
+
+## Verification
+
+Check that the endpoint responds before or after registration:
+
+```bash
+curl -s -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | head -c 200
+```
+
+A JSON response starting with `{"jsonrpc":"2.0"` confirms the server is up.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="'ccpedia' shows a connection error in claude mcp list">
+    Run the curl verification command above. If the endpoint is unreachable, check your network or any proxy blocking outbound HTTPS to `ccpedia.xyz`. If the endpoint responds correctly, try removing and re-adding the server:
+
+    ```bash
+    claude mcp remove ccpedia
+    claude mcp add ccpedia --transport http https://ccpedia.xyz/mcp
+    ```
+  </Accordion>
+  <Accordion title="Tools are not being invoked during a session">
+    Confirm you are using the `--transport http` flag. Without it, Claude Code may default to stdio mode and fail to connect. You can check the current config with `claude mcp list` and look for the transport type shown next to the server name.
+  </Accordion>
+  <Accordion title="Rate-limit errors mid-session">
+    CCPEDIA allows 60 calls per 15-minute window per IP. A `429` error means you have hit the limit. Wait 15 minutes for the window to reset. For sustained high-volume usage, self-hosting is the recommended approach — the source is Apache 2.0 at [github.com/UnityNodes/ccpedia](https://github.com/UnityNodes/ccpedia).
+  </Accordion>
+</AccordionGroup>
+
+[Claude Code documentation ↗](https://docs.anthropic.com/claude/docs/claude-code)

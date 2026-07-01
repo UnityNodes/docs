@@ -1,0 +1,96 @@
+---
+title: "Add CCPEDIA to the Zed Editor"
+sidebarTitle: "Zed"
+description: "Connect CCPEDIA to Zed's context server config and bring Canton Network knowledge into the Zed AI assistant panel."
+---
+
+Zed supports MCP servers through its `context_servers` settings key. Because Zed expects servers to communicate over stdio, you use the `mcp-remote` bridge to proxy calls to CCPEDIA's streamable HTTP endpoint. The setup involves a single config block and a settings reload — no separate installation step beyond Node 18.
+
+<Steps>
+  <Step title="Open Zed settings">
+    Open your Zed settings file. On macOS, press **Cmd+,** to open `~/.config/zed/settings.json` directly in the editor. On Linux the file is at the same path under your home directory.
+
+    If the file does not yet contain a `context_servers` key, you will add one in the next step.
+  </Step>
+  <Step title="Add the CCPEDIA context server block">
+    Merge the following configuration into your `settings.json`. If you already have a `context_servers` object, add `ccpedia` as a sibling key alongside your existing entries.
+
+    ```json
+    {
+      "context_servers": {
+        "ccpedia": {
+          "command": {
+            "path": "npx",
+            "args": ["-y", "mcp-remote", "https://ccpedia.xyz/mcp"]
+          },
+          "settings": {}
+        }
+      }
+    }
+    ```
+
+    <Note>
+      Zed invokes context servers as local stdio processes. The `mcp-remote` bridge spawns a lightweight proxy that forwards those stdio calls to CCPEDIA's remote streamable HTTP endpoint. Node 18 or newer is required for `npx` to resolve the package automatically.
+    </Note>
+  </Step>
+  <Step title="Reload Zed settings">
+    Apply the change without restarting by opening the command palette — press **Cmd+Shift+P** on macOS or **Ctrl+Shift+P** on Linux — and running:
+
+    ```text
+    zed: reload settings
+    ```
+
+    CCPEDIA will appear as an active context server in the Zed AI assistant panel after the reload completes.
+  </Step>
+  <Step title="Try it">
+    Open the Zed assistant panel and ask: *"What's the difference between a Canton synchronizer and a mediator?"* Zed will invoke the CCPEDIA context server and return a structured answer from the Canton Network knowledge base.
+  </Step>
+</Steps>
+
+## Verification
+
+Confirm the endpoint is reachable before editing your settings:
+
+```bash
+curl -s -X POST https://ccpedia.xyz/mcp \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' | head -c 200
+```
+
+You should see a JSON response starting with `{"jsonrpc":"2.0"` and a list of tool definitions.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="CCPEDIA doesn't appear after reloading settings">
+    Verify that `settings.json` contains valid JSON. Open it with the Zed command palette (`zed: open settings`) and look for any syntax errors highlighted in the editor. Common issues include trailing commas or mismatched braces.
+
+    Also confirm that Node 18 or newer is installed and accessible on your PATH:
+
+    ```bash
+    node --version
+    npx --version
+    ```
+
+    If `npx` is not found, install Node from [nodejs.org](https://nodejs.org) or via your system package manager.
+  </Accordion>
+  <Accordion title="mcp-remote fails to start">
+    Try running the bridge command manually to see any error output:
+
+    ```bash
+    npx -y mcp-remote https://ccpedia.xyz/mcp
+    ```
+
+    If it prints a connection error rather than hanging (waiting for stdin), check that `ccpedia.xyz` is reachable from your machine. If it errors on the npx step, you may need to clear the npx cache:
+
+    ```bash
+    npx clear-npx-cache
+    ```
+  </Accordion>
+  <Accordion title="Rate-limit errors during a session">
+    CCPEDIA allows 60 calls per 15-minute window per IP. If you hit the limit, you will see a `429` error returned through the context server. Wait 15 minutes for the window to reset. For higher throughput, self-host the server — source is Apache 2.0 at [github.com/UnityNodes/ccpedia](https://github.com/UnityNodes/ccpedia).
+  </Accordion>
+</AccordionGroup>
+
+[Zed MCP documentation ↗](https://zed.dev/docs/assistant/model-context-protocol)

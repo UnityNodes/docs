@@ -1,0 +1,215 @@
+---
+title: "REST API: Canton Improvement Proposal Endpoints"
+sidebarTitle: "CIPs"
+description: "Fetch one-line TL;DR summaries, run batch lookups across multiple CIPs, and retrieve cross-surface forum, mailing, and GitHub mentions."
+---
+
+The CIP endpoints give you programmatic access to every Canton Improvement Proposal tracked by CCPEDIA — including one-line summaries, status, key dates, and every forum thread, mailing-list post, or GitHub discussion that references a given proposal. Use these endpoints to power dashboards, build CIP-aware tooling, or monitor community activity around specific proposals.
+
+---
+
+### GET /api/v1/cips/:id/tldr
+
+Fetch a concise summary of a single CIP, including its current status and a short TL;DR description. This is the fastest way to get the essential facts about a proposal without downloading the full specification.
+
+<ParamField path="id" type="string" required>
+  The CIP identifier in canonical form, e.g. `CIP-0056`. The prefix `CIP-` and
+  the zero-padded number are both required.
+</ParamField>
+
+**Response fields**
+
+<ResponseField name="cip_id" type="string">
+  The canonical CIP identifier, e.g. `"CIP-0056"`.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  The human-readable title of the proposal.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The current lifecycle status of the CIP. Common values include `"Draft"`,
+  `"Review"`, `"Final"`, and `"Withdrawn"`.
+</ResponseField>
+
+<ResponseField name="tldr" type="string">
+  A one- to two-sentence plain-language summary of what the proposal does.
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  A permalink to the primary discussion thread or specification document for
+  this CIP.
+</ResponseField>
+
+<CodeGroup>
+
+```bash curl
+curl -s 'https://ccpedia.xyz/api/v1/cips/CIP-0056/tldr' | jq .
+```
+
+```json Response
+{
+  "cip_id": "CIP-0056",
+  "title": "Canton Token Standard",
+  "status": "Final",
+  "tldr": "Standard interface for Daml-based tokens on Canton...",
+  "url": "https://lists.sync.global/g/cip-discuss/topic/123"
+}
+```
+
+</CodeGroup>
+
+---
+
+### POST /api/v1/cips/tldrs
+
+Retrieve TL;DR summaries for multiple CIPs in a single request. Send a JSON body containing an array of CIP identifiers and receive an array of summary objects in return. This endpoint is ideal when you need to hydrate a list view or compare several proposals at once.
+
+<ParamField body="ids" type="string[]" required>
+  An array of canonical CIP identifiers to look up, e.g.
+  `["CIP-0056", "CIP-0057", "CIP-0058"]`. You may include up to 50 identifiers
+  per request.
+</ParamField>
+
+**Response fields**
+
+The response is a JSON array. Each element has the same shape as the single-CIP TL;DR response above.
+
+<ResponseField name="[].cip_id" type="string">
+  The canonical CIP identifier for this result.
+</ResponseField>
+
+<ResponseField name="[].title" type="string">
+  The human-readable title of the proposal.
+</ResponseField>
+
+<ResponseField name="[].status" type="string">
+  Current lifecycle status of the CIP.
+</ResponseField>
+
+<ResponseField name="[].tldr" type="string">
+  One- to two-sentence plain-language summary.
+</ResponseField>
+
+<ResponseField name="[].url" type="string">
+  Permalink to the primary discussion or specification document.
+</ResponseField>
+
+<CodeGroup>
+
+```bash curl
+curl -s -X POST https://ccpedia.xyz/api/v1/cips/tldrs \
+  -H 'Content-Type: application/json' \
+  -d '{"ids": ["CIP-0056", "CIP-0057"]}' | jq .
+```
+
+```json Response
+[
+  {
+    "cip_id": "CIP-0056",
+    "title": "Canton Token Standard",
+    "status": "Final",
+    "tldr": "Standard interface for Daml-based tokens on Canton...",
+    "url": "https://lists.sync.global/g/cip-discuss/topic/123"
+  },
+  {
+    "cip_id": "CIP-0057",
+    "title": "Canton Metadata Registry",
+    "status": "Draft",
+    "tldr": "A shared on-ledger registry for contract metadata and type identifiers...",
+    "url": "https://lists.sync.global/g/cip-discuss/topic/145"
+  }
+]
+```
+
+</CodeGroup>
+
+<Note>
+  If an identifier in the `ids` array is not found, the API omits it from the
+  response array rather than returning an error. Check that the count of results
+  matches the count of your input IDs to detect missing proposals.
+</Note>
+
+---
+
+### GET /api/v1/cips/:id/mentions
+
+Fetch every mention of a given CIP across all tracked surfaces: forum threads, mailing-list messages, and GitHub discussions. Use this endpoint to monitor community engagement, track sentiment, or build a timeline of activity for a proposal.
+
+<ParamField path="id" type="string" required>
+  The canonical CIP identifier, e.g. `CIP-0056`.
+</ParamField>
+
+**Response fields**
+
+<ResponseField name="cip_id" type="string">
+  The CIP identifier that was queried.
+</ResponseField>
+
+<ResponseField name="mentions" type="object">
+  A container object grouping mentions by source type.
+</ResponseField>
+
+<Expandable title="mentions fields">
+
+<ResponseField name="mentions.forum" type="array">
+  Mentions found in forum threads. Each item includes `title`, `url`,
+  `author`, and `posted_at`.
+</ResponseField>
+
+<ResponseField name="mentions.mailing" type="array">
+  Mentions found in mailing-list messages. Each item includes `subject`,
+  `url`, `from`, and `sent_at`.
+</ResponseField>
+
+<ResponseField name="mentions.github_discussions" type="array">
+  Mentions found in GitHub Discussions. Each item includes `title`, `url`,
+  `repo`, and `created_at`.
+</ResponseField>
+
+</Expandable>
+
+<CodeGroup>
+
+```bash curl
+curl -s 'https://ccpedia.xyz/api/v1/cips/CIP-0056/mentions' | jq .
+```
+
+```json Response
+{
+  "cip_id": "CIP-0056",
+  "mentions": {
+    "forum": [
+      {
+        "title": "Feedback on CIP-0056 token interface",
+        "url": "https://lists.sync.global/g/cip-discuss/topic/456",
+        "author": "alice@example.com",
+        "posted_at": "2024-11-03T14:22:00Z"
+      }
+    ],
+    "mailing": [
+      {
+        "subject": "[cip-discuss] CIP-0056 implementation notes",
+        "url": "https://lists.sync.global/g/cip-discuss/message/789",
+        "from": "bob@example.com",
+        "sent_at": "2024-11-05T09:10:00Z"
+      }
+    ],
+    "github_discussions": [
+      {
+        "title": "CIP-0056 token standard — open questions",
+        "url": "https://github.com/digital-asset/canton/discussions/101",
+        "repo": "digital-asset/canton",
+        "created_at": "2024-11-01T17:45:00Z"
+      }
+    ]
+  }
+}
+```
+
+</CodeGroup>
+
+<Tip>
+  For the full JSON schema including all optional fields, download the OpenAPI
+  spec at [`/api/v1/openapi.json`](https://ccpedia.xyz/api/v1/openapi.json).
+</Tip>
